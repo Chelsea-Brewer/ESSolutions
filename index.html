@@ -1,7 +1,2893 @@
 <!DOCTYPE html>
-<html>
-<head><title>My Page</title></head>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ES Scoping Tool | Kinaxis Professional Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<style>
+:root {
+  --kred:#E30613; --kred-dark:#b8000f; --kred-faint:#fff5f5;
+  --kteal:#287271; --kdeep:#1A4146; --ksky:#C2F3FF; --ksky-dim:#e8faff;
+  --white:#fff; --bg:#f5f7f7;
+  --g100:#eef0f0; --g200:#dde0e0; --g300:#bfc4c4;
+  --g400:#919196; --g500:#6b6e72; --g700:#474749; --g900:#1a1a1c;
+  --green:#418f62; --green-lt:#edf7f1;
+  --amber:#c47a00; --amber-lt:#fef7e6;
+  --blue:#248f8e; --blue-lt:#e6f6f6;
+  --sidebar-w:220px; --nav-h:56px; --r:6px; --rlg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--g900);font-size:14px;line-height:1.5;}
+
+/* NAV */
+.topnav{background:var(--white);border-bottom:3px solid var(--kred);padding:0 28px;display:flex;align-items:center;height:var(--nav-h);position:sticky;top:0;z-index:100;}
+.kwordmark{font-family:'Lato',sans-serif;font-weight:900;font-size:22px;letter-spacing:2px;text-transform:uppercase;color:var(--kred);line-height:1;}
+.kwordmark sup{font-size:11px;font-weight:400;vertical-align:super;letter-spacing:0;}
+.ndiv{width:1px;height:20px;background:var(--g200);margin:0 16px;}
+.nsub{font-size:12px;color:var(--g500);font-weight:400;letter-spacing:.3px;}
+.nright{margin-left:auto;font-size:11px;color:var(--g400);letter-spacing:.5px;}
+
+/* SHELL */
+.shell{display:flex;min-height:calc(100vh - var(--nav-h));}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--kdeep);padding:28px 0 20px;flex-shrink:0;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);padding:0 20px 10px;}
+.sb-mode{padding:0 20px 14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:8px;}
+.sb-mode-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:3px;}
+.sb-mode-val{font-size:11px;color:rgba(255,255,255,.7);font-weight:400;}
+.snav{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:default;transition:background .15s;position:relative;border-left:3px solid transparent;}
+.snav.done{cursor:pointer;}
+.snav.done:hover{background:rgba(255,255,255,.08);}
+.snav.active{background:rgba(227,6,19,.18);border-left-color:var(--kred);}
+.snum{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:rgba(255,255,255,.5);flex-shrink:0;}
+.snav.active .snum{border-color:var(--kred);background:var(--kred);color:#fff;}
+.snav.done .snum{border-color:var(--green);background:var(--green);color:#fff;}
+.slbl{font-size:12px;font-weight:400;color:rgba(255,255,255,.55);letter-spacing:.2px;}
+.snav.active .slbl{color:#fff;font-weight:700;}
+.snav.done .slbl{color:rgba(255,255,255,.8);}
+.snav.locked{opacity:.35;cursor:default;}
+.sb-footer{margin-top:auto;padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);}
+.sb-footer p{font-size:10px;color:rgba(255,255,255,.3);line-height:1.5;font-weight:300;}
+
+/* MAIN */
+.main{flex:1;padding:32px 36px;max-width:1100px;}
+.main.results-active{max-width:none;}
+.sec{display:none;}
+.sec.active{display:block;animation:si .2s ease;}
+@keyframes si{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:24px;padding-bottom:18px;border-bottom:2px solid var(--ksky);}
+.ph-eye{font-size:10px;font-weight:700;color:var(--kteal);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.ph-title{font-size:24px;font-weight:900;color:var(--g900);letter-spacing:-.3px;}
+.ph-title strong{color:var(--kred);}
+.ph-desc{font-size:13px;color:var(--g500);margin-top:5px;max-width:580px;font-weight:300;}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--g200);border-radius:var(--rlg);padding:20px 24px;margin-bottom:16px;}
+.card-hd{font-size:13px;font-weight:700;color:var(--kdeep);margin-bottom:14px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px;}
+.cbadge{font-size:10px;padding:2px 8px;border-radius:99px;background:var(--ksky-dim);color:var(--kteal);font-weight:700;}
+
+/* FIELDS */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--g500);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.field input,.field select{width:100%;border:1px solid var(--g200);border-radius:var(--r);padding:9px 12px;font-family:'Lato',sans-serif;font-size:14px;color:var(--g900);background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--kteal);box-shadow:0 0 0 3px rgba(40,114,113,.12);}
+.field input::placeholder{color:var(--g300);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* FLOW & MODE TOGGLE */
+.flow-toggle{display:flex;border:1.5px solid var(--g200);border-radius:var(--r);overflow:hidden;width:fit-content;margin-bottom:14px;}
+.flow-btn{padding:8px 24px;font-size:13px;font-weight:700;cursor:pointer;background:var(--white);color:var(--g400);border:none;font-family:'Lato',sans-serif;transition:all .15s;letter-spacing:.3px;}
+.flow-btn.on{background:var(--kdeep);color:#fff;}
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
+.mode-card{border:2px solid var(--g200);border-radius:var(--rlg);padding:14px 16px;cursor:pointer;transition:all .15s;background:var(--white);}
+.mode-card:hover{border-color:var(--kteal);}
+.mode-card.on{border-color:var(--kteal);background:var(--ksky-dim);}
+.mode-card-icon{font-size:18px;margin-bottom:6px;}
+.mode-card-title{font-size:12px;font-weight:700;color:var(--kdeep);margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px;}
+.mode-card.on .mode-card-title{color:var(--kteal);}
+.mode-card-desc{font-size:11px;color:var(--g500);line-height:1.4;font-weight:300;}
+
+/* ENTRY CHIPS */
+.site-chip{display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--bg);border:1px solid var(--g200);border-radius:var(--r);margin-bottom:5px;}
+.sc-name{flex:1;font-size:13px;font-weight:700;color:var(--kdeep);}
+.sc-count{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.sc-count label{font-size:11px;color:var(--g500);font-weight:400;}
+.sc-count input{width:52px;border:1px solid var(--g200);border-radius:4px;padding:4px 6px;font-size:13px;text-align:center;font-family:'Lato',monospace;outline:none;}
+.sc-count input:focus{border-color:var(--kteal);}
+.sc-rm{width:20px;height:20px;border:none;background:transparent;cursor:pointer;color:var(--g300);font-size:16px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:all .15s;}
+.sc-rm:hover{background:var(--kred-faint);color:var(--kred);}
+.add-row{display:flex;gap:8px;}
+.add-row input{flex:1;border:1px solid var(--g200);border-radius:var(--r);padding:9px 12px;font-family:'Lato',sans-serif;font-size:13px;outline:none;transition:border-color .15s;}
+.add-row input:focus{border-color:var(--kteal);box-shadow:0 0 0 3px rgba(40,114,113,.12);}
+
+/* SITE PROGRESS TABS */
+.site-progress{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+.site-prog-item{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.site-prog-item.active{background:var(--kdeep);color:#fff;border-color:var(--kdeep);}
+.site-prog-item.scored{background:var(--green-lt);color:var(--green);border-color:var(--green);}
+.site-prog-item.pending{background:var(--g100);color:var(--g400);border-color:var(--g200);}
+.site-prog-item.warning{background:#fff0f0;color:#c0392b;border-color:#e74c3c;}
+@keyframes tabPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(231,76,60,0);}50%{transform:scale(1.06);box-shadow:0 0 0 4px rgba(231,76,60,.25);}}
+.site-prog-item.pulse{animation:tabPulse .6s ease 3;}
+#scopeToast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--kdeep);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:700;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
+#scopeToast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+
+/* SCORE LEGEND */
+.score-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--white);border:1px solid var(--g100);border-radius:var(--r);align-items:center;}
+.sl-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--g500);}
+.sl-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+
+/* CAP ROWS */
+.cg{margin-bottom:20px;}
+.cg-hd{font-size:10px;font-weight:700;color:var(--kteal);text-transform:uppercase;letter-spacing:1.5px;padding:8px 0;border-bottom:2px solid var(--ksky);margin-bottom:6px;}
+.crow{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--white);border:1px solid var(--g100);border-radius:var(--r);margin-bottom:3px;transition:all .12s;position:relative;cursor:default;}
+.crow:hover{border-color:var(--g200);}
+.crow.s3{border-color:#418f6255;background:var(--green-lt);}
+.crow.s4{border-color:var(--kred);background:var(--kred-faint);}
+.crow.s1{opacity:.45;}
+.cname{flex:1;font-size:13px;color:var(--g700);}
+.ctbadge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;flex-shrink:0;letter-spacing:.3px;}
+.bF{background:var(--green-lt);color:var(--green);}
+.bI{background:var(--blue-lt);color:var(--blue);}
+.bA{background:var(--amber-lt);color:var(--amber);}
+.sbts{display:flex;border:1.5px solid var(--g200);border-radius:var(--r);overflow:hidden;flex-shrink:0;}
+.sbt{width:32px;height:28px;border:none;border-right:1px solid var(--g200);background:var(--white);color:var(--g400);font-family:'Lato',monospace;font-size:12px;font-weight:700;cursor:pointer;transition:all .1s;display:flex;align-items:center;justify-content:center;}
+.sbt:last-child{border-right:none;}
+.sbt:hover{background:var(--g100);}
+.sbt.a1{background:var(--g100);color:var(--g500);}
+.sbt.a2{background:var(--g700);color:#fff;}
+.sbt.a3{background:var(--green);color:#fff;}
+.sbt.a4{background:var(--kred);color:#fff;}
+.cap-info-btn{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--g300);background:transparent;color:var(--g400);font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-family:'Lato',sans-serif;position:relative;}
+.cap-info-btn:hover{border-color:var(--kteal);color:var(--kteal);}
+.cap-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--kdeep);color:#fff;font-size:11px;font-weight:400;line-height:1.5;padding:10px 14px;border-radius:6px;width:280px;max-width:90vw;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none;}
+.cap-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--kdeep);}
+.cap-info-btn:hover .cap-tooltip{display:block;}
+
+/* OC ITEMS */
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ai{background:var(--white);border:1px solid var(--g200);border-radius:var(--rlg);padding:16px;}
+.ai label{font-size:13px;font-weight:700;color:var(--kdeep);display:block;margin-bottom:3px;}
+.ai-desc{font-size:11px;color:var(--g400);margin-bottom:10px;font-weight:300;}
+.oc-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+.oc-opt{padding:7px 4px;border-radius:5px;border:1.5px solid var(--g200);background:var(--bg);text-align:center;cursor:pointer;transition:all .12s;}
+.oc-opt:hover{border-color:var(--kteal);}
+.oc-opt.on{border-color:var(--kteal);background:var(--ksky-dim);}
+.oc-opt-val{font-size:15px;font-weight:900;color:var(--g500);font-family:'Lato',monospace;}
+.oc-opt.on .oc-opt-val{color:var(--kteal);}
+.oc-opt-lbl{font-size:9px;color:var(--g400);margin-top:2px;line-height:1.2;font-weight:400;}
+.oc-opt.on .oc-opt-lbl{color:var(--kteal);}
+.tier-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;margin-top:10px;}
+
+/* ARCHETYPE REVIEW */
+.arc-card{background:var(--white);border:1px solid var(--g200);border-radius:var(--rlg);padding:20px 24px;margin-bottom:14px;border-left:4px solid var(--kteal);}
+.arc-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.arc-num{font-size:10px;font-weight:700;color:var(--g400);background:var(--g100);padding:3px 9px;border-radius:99px;letter-spacing:.5px;text-transform:uppercase;}
+.arc-ninput{font-size:16px;font-weight:900;color:var(--kdeep);border:none;background:transparent;outline:none;border-bottom:2px dashed var(--g200);padding:2px 4px;font-family:'Lato',sans-serif;min-width:140px;max-width:260px;}
+.arc-ninput:focus{border-bottom-color:var(--kred);}
+.tchip{font-size:11px;font-weight:700;padding:4px 12px;border-radius:99px;letter-spacing:.3px;}
+.arc-sites{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.arc-sp{font-size:11px;padding:3px 10px;background:var(--ksky-dim);border-radius:99px;color:var(--kteal);border:1px solid var(--ksky);font-weight:700;}
+.arc-ap{font-size:10px;padding:3px 9px;background:var(--amber-lt);border-radius:99px;color:var(--amber);border:1px solid #fde68a;font-weight:700;}
+.arc-caps{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.arc-cap{font-size:11px;padding:2px 8px;background:var(--bg);border:1px solid var(--g200);border-radius:4px;color:var(--g500);}
+.rename-note{font-size:12px;color:var(--g500);font-weight:300;margin-bottom:16px;}
+.rename-note strong{color:var(--g700);font-weight:700;}
+
+/* BUTTONS */
+.btn{padding:10px 22px;border-radius:var(--r);font-family:'Lato',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;letter-spacing:.3px;}
+.btn-red{background:var(--kred);color:#fff;}
+.btn-red:hover{background:var(--kred-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(227,6,19,.3);}
+.btn-outline{background:var(--white);color:var(--kdeep);border:1.5px solid var(--g200);}
+.btn-outline:hover{border-color:var(--kteal);color:var(--kteal);}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.acts{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:18px;border-top:1px solid var(--g200);}
+
+/* INFO / CALLOUT */
+.ibox{background:var(--ksky-dim);border:1px solid var(--ksky);border-radius:var(--r);padding:11px 15px;font-size:12px;color:var(--kteal);margin-bottom:14px;font-weight:400;}
+.ibox strong{font-weight:700;}
+.warn-box{background:var(--amber-lt);border:1px solid #fde68a;border-radius:var(--r);padding:11px 15px;font-size:12px;color:var(--amber);margin-bottom:8px;font-weight:400;display:flex;gap:8px;}
+.good-box{background:var(--green-lt);border:1px solid #6ee7b7;border-radius:var(--r);padding:11px 15px;font-size:12px;color:var(--green);margin-bottom:8px;font-weight:400;display:flex;gap:8px;}
+
+/* RESULTS */
+.r-totals{background:var(--kdeep);color:#fff;border-radius:var(--rlg);padding:24px 28px;margin-bottom:22px;}
+.r-totals h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(194,243,255,.6);margin-bottom:16px;}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.titem-lbl{font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:700;}
+.titem-val{font-size:26px;font-weight:900;}
+
+.a-result{background:var(--white);border:1px solid var(--g200);border-radius:var(--rlg);margin-bottom:22px;overflow:hidden;}
+.a-result-hd{padding:14px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--kdeep);color:#fff;}
+.a-result-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:-.2px;}
+.a-result-body{padding:24px;}
+
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;}
+.rcard{background:var(--bg);border:1px solid var(--g100);border-radius:var(--r);padding:14px 16px;}
+.rcard-lbl{font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.rcard-val{font-size:22px;font-weight:900;color:var(--kdeep);}
+.rcard-sub{font-size:11px;color:var(--g400);margin-top:2px;}
+
+/* GANTT */
+.gantt-wrap{margin-bottom:24px;max-width:100%;overflow:hidden;}
+.gantt-title{font-size:10px;font-weight:700;color:var(--kteal);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+.gantt-legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;}
+.gl-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g500);font-weight:400;}
+.gl-swatch{width:22px;height:12px;border-radius:3px;flex-shrink:0;}
+.ph-commence{background:#C2F3FF;color:#1A4146;}
+.ph-connect{background:#1A4146;color:#C2F3FF;}
+.ph-configure{background:#287271;color:#fff;}
+.ph-confirm{background:#F4A261;color:#7c3800;}
+.ph-close{background:#E30613;color:#fff;}
+.ph-rollout{background:#eef8f7;color:#287271;border:1.5px dashed #287271;}
+.ph-rollout-hdr{background:#c2f3ff44;color:var(--kteal);border:1.5px dashed var(--kteal);}
+
+/* RESOURCE TABLE */
+.caps-hd{font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.rtbl{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px;}
+.rtbl thead th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.8px;border-bottom:2px solid var(--kdeep);background:var(--bg);}
+.rtbl tbody td{padding:9px 12px;border-bottom:1px solid var(--g100);}
+.rtbl tbody tr:last-child td{border-bottom:none;}
+.num{text-align:right;font-weight:700;color:var(--g700);}
+.rtbl thead th.num{text-align:right;}
+.tot-row td{font-weight:900;color:var(--kdeep);background:var(--ksky-dim);border-top:2px solid var(--kteal);}
+.tot-row td.num{color:var(--kred);}
+.disclaimer{font-size:11px;color:var(--g400);background:var(--bg);border:1px solid var(--g200);border-radius:var(--r);padding:12px 16px;margin-bottom:22px;line-height:1.7;font-weight:300;}
+.disclaimer strong{color:var(--g500);font-weight:700;}
+.r-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+/* BUDGETARY ESTIMATE */
+.be-tier-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.be-tier-label{width:130px;flex-shrink:0;}
+.be-tier-name{font-size:13px;font-weight:700;}
+.be-tier-pct{font-size:22px;font-weight:900;width:48px;text-align:right;flex-shrink:0;}
+.be-tier-sites{font-size:11px;color:var(--g400);width:64px;flex-shrink:0;}
+.be-slider{flex:1;-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;outline:none;cursor:pointer;}
+.be-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.be-F .be-tier-name{color:var(--green);}
+.be-F .be-slider{background:var(--green-lt);accent-color:var(--green);}
+.be-F .be-slider::-webkit-slider-thumb{background:var(--green);}
+.be-F .be-tier-pct{color:var(--green);}
+.be-I .be-tier-name{color:var(--blue);}
+.be-I .be-slider{background:var(--blue-lt);accent-color:var(--blue);}
+.be-I .be-slider::-webkit-slider-thumb{background:var(--blue);}
+.be-I .be-tier-pct{color:var(--blue);}
+.be-A .be-tier-name{color:var(--amber);}
+.be-A .be-slider{background:var(--amber-lt);accent-color:var(--amber);}
+.be-A .be-slider::-webkit-slider-thumb{background:var(--amber);}
+.be-A .be-tier-pct{color:var(--amber);}
+.be-total-bar{height:10px;border-radius:5px;overflow:hidden;display:flex;margin-bottom:6px;}
+.be-total-seg{height:100%;transition:width .2s;}
+.be-range-card{background:var(--kdeep);color:#fff;border-radius:var(--rlg);padding:20px 28px;margin-bottom:16px;}
+.be-range-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(194,243,255,.5);margin-bottom:12px;}
+.be-range-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;}
+.be-range-item{}
+.be-range-lbl{font-size:9px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.be-range-val{font-size:22px;font-weight:900;color:var(--ksky);}
+.be-range-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+.be-gantt-wrap{margin-top:16px;}
+.be-wave-row{display:flex;align-items:center;margin-bottom:5px;}
+.be-wave-label{width:160px;font-size:11px;font-weight:700;color:var(--g700);text-align:right;padding-right:12px;flex-shrink:0;}
+.be-wave-track{position:relative;height:26px;background:var(--g100);border-radius:4px;flex:1;}
+.be-wave-bar{position:absolute;top:2px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 6px;}
+.be-ruler{position:relative;height:16px;margin-bottom:4px;display:flex;margin-left:170px;}
+.be-ruler-tick{position:absolute;font-size:9px;color:var(--g300);transform:translateX(-50%);}
+.be-mix-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;margin:2px;}
+
+/* ── SESSION MANAGER ─────────────────────────────── */
+.session-panel{margin-bottom:20px;}
+.session-resume{display:flex;align-items:center;justify-content:space-between;background:var(--kdeep);color:#fff;border-radius:var(--r);padding:10px 14px;margin-bottom:10px;cursor:pointer;transition:opacity .15s;}
+.session-resume:hover{opacity:.85;}
+.session-resume-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ksky);margin-bottom:2px;}
+.session-resume-name{font-size:13px;font-weight:700;}
+.session-resume-meta{font-size:11px;color:rgba(194,243,255,.6);margin-top:1px;}
+.session-list{border:1px solid var(--g200);border-radius:var(--r);overflow:hidden;}
+.session-list-hd{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g400);padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--g200);}
+.session-row{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid var(--g100);cursor:pointer;transition:background .1s;gap:10px;}
+.session-row:last-child{border-bottom:none;}
+.session-row:hover{background:var(--g100);}
+.session-row-info{flex:1;min-width:0;}
+.session-row-name{font-size:12px;font-weight:700;color:var(--kdeep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.session-row-meta{font-size:11px;color:var(--g400);margin-top:1px;}
+.session-row-del{width:22px;height:22px;border:none;background:none;color:var(--g300);cursor:pointer;font-size:14px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.session-row-del:hover{background:var(--g200);color:var(--g500);}
+.session-empty{padding:12px;font-size:12px;color:var(--g400);text-align:center;}
+.drop-zone{border:2px dashed var(--g200);border-radius:var(--r);padding:16px;text-align:center;font-size:12px;color:var(--g400);cursor:pointer;transition:border-color .2s,background .2s;margin-top:10px;}
+.drop-zone.drag-over{border-color:var(--kteal);background:var(--g100);}
+.drop-zone input{display:none;}
+</style>
+</head>
 <body>
-  <h1>Hello</h1>
+
+<nav class="topnav">
+  <div class="kwordmark">KINAXIS<sup>®</sup></div>
+  <div class="ndiv"></div>
+  <span class="nsub">Enterprise Scheduling &nbsp;·&nbsp; Professional Services Scoping</span>
+  <div class="nright" id="navStep">STEP 1 OF 5</div>
+</nav>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sidebar-label">Scoping Workflow</div>
+    <div class="sb-mode" id="sbMode" style="display:none;">
+      <div class="sb-mode-lbl">Mode</div>
+      <div class="sb-mode-val" id="sbModeVal"></div>
+    </div>
+    <div class="snav active" id="nav0" onclick="navTo(0)"><div class="snum">1</div><span class="slbl">Project Setup</span></div>
+    <div class="snav locked" id="nav1" onclick="navTo(1)"><div class="snum">2</div><span class="slbl">Capability Scoring</span></div>
+    <div class="snav locked" id="nav2" onclick="navTo(2)"><div class="snum">3</div><span class="slbl">Operational Context</span></div>
+    <div class="snav locked" id="nav3" onclick="navTo(3)"><div class="snum">4</div><span class="slbl">Archetype Review</span></div>
+    <div class="snav locked" id="nav4" onclick="navTo(4)"><div class="snum">5</div><span class="slbl">Estimate Summary</span></div>
+    <div class="sb-footer"><p>For internal use by Kinaxis Professional Services. Not for external distribution.</p></div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ══ STEP 0: PROJECT SETUP ══ -->
+    <div class="sec active" id="step0">
+      <div class="ph">
+        <div class="ph-eye">Step 1 of 5</div>
+        <h1 class="ph-title">Project <strong>Setup</strong></h1>
+        <p class="ph-desc">Configure the engagement type, input mode, and enter each site(s) or archetype(s) in scope.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">Project Information</div>
+        <div class="fr3">
+          <div class="field"><label>Customer / Project Name</label><input type="text" id="projName" placeholder="e.g. Acme Manufacturing"></div>
+          <div class="field"><label>Prepared By</label><input type="text" id="prepBy" placeholder="Your name"></div>
+          <div class="field"><label>Date</label><input type="date" id="projDate"></div>
+        </div>
+        <div class="fr">
+          <div class="field">
+            <label>Opportunity Stage</label>
+            <select id="oppStage" onchange="setFlowFromStage(this.value)">
+              <option value="BUD">Budgetary Estimate</option>
+              <option value="ROM">ROM</option>
+              <option value="GPT">GPT</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Input Mode</label>
+            <select id="modeSelect" onchange="setModeFromSelect(this.value)">
+              <option value="site">By Site (auto-cluster archetypes)</option>
+              <option value="bu" style="display:none">By Business Unit (each BU = 1 archetype)</option>
+              <option value="archetype">By Archetype (you define groupings)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><span id="entryCardTitle">Sites</span> in Scope <span class="cbadge" id="entryCount">0 added</span></div>
+        <div class="ibox" id="entryHelp">Add each manufacturing site. You'll score capabilities for each site individually in the next step — this is how the tool identifies shared archetypes.</div>
+        <div id="entryList"></div>
+        <div class="add-row">
+          <input type="text" id="newEntry" placeholder="Site name (e.g. Birmingham Plant, Site 3)">
+          <div class="sc-count" id="newSiteCountWrap" style="display:none;flex-shrink:0;">
+            <label>Sites</label>
+            <input type="number" id="newSiteCount" min="1" value="1" style="width:52px;border:1px solid var(--g200);border-radius:4px;padding:4px 6px;font-size:13px;text-align:center;font-family:'Lato',monospace;outline:none;">
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="addEntry()">+ Add <span id="addEntryLabel">Site</span></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">Recent Estimates</div>
+        <div class="session-panel" id="sessionPanel">
+          <div id="sessionResumeWrap"></div>
+          <div id="sessionListWrap"></div>
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('excelImport').click()">
+            <input type="file" id="excelImport" accept=".xlsx" onchange="importFromExcel(this)">
+            📂 Drag &amp; drop an exported Excel file to restore a session, or click to browse
+          </div>
+        </div>
+      </div>
+
+      <div class="acts"><div></div><button class="btn btn-red" onclick="goStep0()">Continue →</button></div>
+    </div>
+
+    <!-- ══ STEP 1: CAPABILITY SCORING (GPT only) ══ -->
+    <div class="sec" id="step1">
+      <div class="ph">
+        <div class="ph-eye">Step 2 of 5 — GPT Mode</div>
+        <h1 class="ph-title">Capability <strong>Scoring</strong></h1>
+        <p class="ph-desc">Score each capability for every <span id="capModeLabel">site</span>/archetype. Switch between sites/archetypes using the tabs below.<br>
+        <span style="font-size:11px;color:var(--g400);font-weight:300;">? = Hover for a description of each capability</span></p>
+      </div>
+      <div class="site-progress" id="capProgress"></div>
+      <div class="score-legend">
+        <div class="sl-item"><div class="sl-dot" style="background:var(--g100);border:1px solid var(--g300)"></div>1 — Not needed</div>
+        <div class="sl-item"><div class="sl-dot" style="background:var(--g700)"></div>2 — Recognized, not required</div>
+        <div class="sl-item"><div class="sl-dot" style="background:var(--green)"></div>3 — Actively used</div>
+        <div class="sl-item"><div class="sl-dot" style="background:var(--kred)"></div>4 — Critical, drives scheduling logic</div>
+        <div class="sl-item" style="margin-left:auto;">
+          <span style="font-size:10px;color:var(--g400);">
+            <span style="background:var(--green-lt);color:var(--green);padding:1px 5px;border-radius:3px;font-weight:700;">F</span> Foundational &nbsp;
+            <span style="background:var(--blue-lt);color:var(--blue);padding:1px 5px;border-radius:3px;font-weight:700;">I</span> Intermediate &nbsp;
+            <span style="background:var(--amber-lt);color:var(--amber);padding:1px 5px;border-radius:3px;font-weight:700;">A</span> Advanced
+          </span>
+        </div>
+      </div>
+      <div id="capGroups"></div>
+      <div class="acts">
+        <button class="btn btn-outline" onclick="navTo(0)">← Back</button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-outline btn-sm" id="capPrev" onclick="shiftCapEntry(-1)" style="display:none;">← Prev</button>
+          <button class="btn btn-outline btn-sm" id="capNext" onclick="shiftCapEntry(1)" style="display:none;">Next →</button>
+          <button class="btn btn-red" onclick="goStep1()">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: OPERATIONAL CONTEXT ══ -->
+    <div class="sec" id="step2">
+      <div class="ph">
+        <div class="ph-eye" id="step2Eye">Step 3 of 5</div>
+        <h1 class="ph-title">Operational <strong>Context</strong></h1>
+        <p class="ph-desc">Make sure to answer each question for every <span id="ocModeLabel">site</span> or archetype.</p>
+      </div>
+      <div class="ibox" id="romNote"><strong>ROM Mode:</strong> Tier is determined automatically from these responses.</div>
+      <div class="site-progress" id="ocProgress"></div>
+      <div class="ag" id="ocGrid"></div>
+      <div class="acts">
+        <button class="btn btn-outline" id="step2Back" onclick="navTo(1)">← Back</button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-outline btn-sm" id="ocPrev" onclick="shiftOCEntry(-1)" style="display:none;">← Prev</button>
+          <button class="btn btn-outline btn-sm" id="ocNext" onclick="shiftOCEntry(1)" style="display:none;">Next →</button>
+          <button class="btn btn-red" onclick="goStep2()">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: ARCHETYPE REVIEW ══ -->
+    <div class="sec" id="step3">
+      <div class="ph">
+        <div class="ph-eye">Step 4 of 5</div>
+        <h1 class="ph-title">Archetype <strong>Review</strong></h1>
+        <p class="ph-desc">Auto-clustered groupings based on tier, requirements, and operational context.</p>
+      </div>
+      <p class="rename-note"><strong>Feel free to rename before generating the plan.</strong> Names will appear throughout the estimate.</p>
+      <div id="archReview"></div>
+      <div class="acts">
+        <button class="btn btn-outline" onclick="navTo(2)">← Back</button>
+        <button class="btn btn-red" onclick="genResults()">Generate Plan →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 4: ESTIMATE SUMMARY ══ -->
+    <div class="sec" id="step4">
+      <div class="ph">
+        <div class="ph-eye">Step 5 of 5</div>
+        <h1 class="ph-title">Scope &amp; Services <strong>Estimate Summary</strong></h1>
+        <p class="ph-desc" id="rSub"></p>
+      </div>
+      <div id="riskCallouts"></div>
+      <div id="rContent"></div>
+      <div class="r-actions">
+        <button class="btn btn-outline" onclick="navTo(3)">← Revise</button>
+        <button class="btn btn-outline" onclick="exportToExcel()">⬇ Export to Excel</button>
+      </div>
+    </div>
+
+
+    <!-- ══ STEP BUD: BUDGETARY ESTIMATE ══ -->
+    <div class="sec" id="stepBud">
+      <div class="ph">
+        <div class="ph-eye">Budgetary Estimate</div>
+        <h1 class="ph-title">Site Mix <strong>Estimate</strong></h1>
+        <p class="ph-desc">Enter your total site count and approximate tier mix. The tool calculates a blended hour range across your portfolio with an adjustable ±15% variance.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">Total Sites in Scope</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+          <button class="ns-btn" style="width:32px;height:32px;border-radius:6px;border:1.5px solid var(--g200);background:var(--white);font-size:18px;font-weight:700;color:var(--g500);cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="budStep('sites',-1)">−</button>
+          <div id="budSitesVal" style="font-size:28px;font-weight:900;color:var(--kdeep);min-width:40px;text-align:center;">10</div>
+          <button class="ns-btn" style="width:32px;height:32px;border-radius:6px;border:1.5px solid var(--g200);background:var(--white);font-size:18px;font-weight:700;color:var(--g500);cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="budStep('sites',1)">+</button>
+          <span style="font-size:12px;color:var(--g400);">total sites across all archetypes (max 3 tiers)</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">Tier Mix <span id="budMixStatus" style="font-size:11px;font-weight:400;color:var(--g400);text-transform:none;letter-spacing:0;margin-left:8px;"></span>
+          <span style="font-size:11px;font-weight:600;color:var(--kteal);text-transform:none;letter-spacing:0;margin-left:auto;cursor:pointer;text-decoration:underline;float:right;" onclick="document.getElementById('tierMatrixModal').style.display='flex'">View tier definitions →</span>
+        </div>
+        <div class="ibox">Adjust the sliders to set the percentage of sites at each complexity tier. The three values must total 100%. The site count for each tier updates live.</div>
+
+        <div class="be-tier-row be-F">
+          <div class="be-tier-label"><div class="be-tier-name">Foundational</div><div style="font-size:10px;color:var(--g400);margin-top:1px;">Simple, single-site</div></div>
+          <input type="range" class="be-slider" id="sliderF" min="0" max="100" value="25" oninput="budSlider('F',this.value)">
+          <div class="be-tier-pct" id="pctF">25%</div>
+          <div class="be-tier-sites" id="sitesF">~3 sites</div>
+        </div>
+        <div class="be-tier-row be-I">
+          <div class="be-tier-label"><div class="be-tier-name">Intermediate</div><div style="font-size:10px;color:var(--g400);margin-top:1px;">Moderate complexity</div></div>
+          <input type="range" class="be-slider" id="sliderI" min="0" max="100" value="50" oninput="budSlider('I',this.value)">
+          <div class="be-tier-pct" id="pctI">50%</div>
+          <div class="be-tier-sites" id="sitesI">~5 sites</div>
+        </div>
+        <div class="be-tier-row be-A">
+          <div class="be-tier-label"><div class="be-tier-name">Advanced</div><div style="font-size:10px;color:var(--g400);margin-top:1px;">High complexity</div></div>
+          <input type="range" class="be-slider" id="sliderA" min="0" max="100" value="25" oninput="budSlider('A',this.value)">
+          <div class="be-tier-pct" id="pctA">25%</div>
+          <div class="be-tier-sites" id="sitesA">~3 sites</div>
+        </div>
+
+        <div class="be-total-bar" id="budTotalBar">
+          <div class="be-total-seg" id="budSegF" style="background:var(--green);width:25%;"></div>
+          <div class="be-total-seg" id="budSegI" style="background:var(--blue);width:50%;"></div>
+          <div class="be-total-seg" id="budSegA" style="background:var(--amber);width:25%;"></div>
+        </div>
+        <div id="budTotalNote" style="font-size:11px;color:var(--g500);margin-top:2px;">Total: 100%</div>
+      </div>
+
+      <div class="acts">
+        <button class="btn btn-outline" onclick="navTo(0)">← Back</button>
+        <button class="btn btn-red" id="budGenBtn" onclick="genBudgetaryEstimate()">Generate Estimate →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP BUD RESULTS ══ -->
+    <div class="sec" id="stepBudResults">
+      <div class="ph">
+        <div class="ph-eye">Budgetary Estimate — Results</div>
+        <h1 class="ph-title">Indicative <strong>Range</strong></h1>
+        <p class="ph-desc" id="budResultSub"></p>
+      </div>
+      <div id="budResultContent"></div>
+      <div class="r-actions">
+        <button class="btn btn-outline" onclick="showSec('stepBud');updateSidebarBud(1);">← Revise Inputs</button>
+        <button class="btn btn-outline" onclick="exportBudgetaryExcel()">⬇ Export to Excel</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA: CAPABILITIES
+// ═══════════════════════════════════════
+const CAPS=[
+  {g:'Process Modeling',id:'single_op',name:'Single-Op Scheduling',t:'F',adders:[],tip:'Each production order goes through just one step or work center. For example, a mixing tank or a single assembly station. Select this if your scheduling is straightforward with no multi-step routing.'},
+  {g:'Process Modeling',id:'multi_op',name:'Multi-Op Scheduling',t:'I',adders:[],tip:'Your production orders go through several steps in sequence — for example, mix, then fill, then label, then pack. The schedule sequences these steps in order, with the sequence number setting the precedence relationship.'},
+  {g:'Process Modeling',id:'multi_bom',name:'Multi-Level BoMs',t:'I',adders:[],tip:'Your products are built from components that are themselves assembled from other parts. For example, a finished good made from sub-assemblies, which are made from raw materials. Common in discrete and automotive manufacturing.'},
+  {g:'Process Modeling',id:'op_overlaps',name:'Operation Overlaps',t:'I',adders:['timing'],tip:'A later step can begin before the previous one finishes — for example, a filling line starts while the last batch is still being mixed. This requires timing in the schedule to avoid delays, prevent expiry, or allow WIP to move through the facility efficiently.'},
+  {g:'Process Modeling',id:'min_wait',name:'Minimum Wait Duration Between Operations',t:'I',adders:['timing'],tip:'There must be a waiting period between steps — for example, a product must cure for 4 hours before it can be packed, or must cool before moving to the next station. The schedule must enforce this gap.'},
+  {g:'Process Modeling',id:'max_wait',name:'Maximum Wait Duration Between Operations',t:'I',adders:['timing'],tip:'A step must start within a certain time after the previous one starts or finishes — for example, a product must move to the next stage within 2 hours. The schedule must prevent steps from being too far apart. A very common example of expiry.'},
+  {g:'Process Modeling',id:'concurrent',name:'Concurrent Operations',t:'I',adders:[],tip:'Two scenarios: (1) Parallel branches — a left-side and right-side component are both processed at Operation 10 on two different machines at the same time, then come together at the next step or are consumed together through the BoM. (2) Split processing — a single job is too large for one machine, so it runs across multiple machines simultaneously. This is not about sequential steps overlapping in time — that is covered by Operation Overlaps.'},
+  {g:'Process Modeling',id:'static_setup',name:'Static Setup / Changeovers',t:'F',adders:[],tip:'Cleaning or changeover between jobs always takes the same amount of time, no matter what ran before or what runs next. For example, a machine always needs 30 minutes to clean between products.'},
+  {g:'Process Modeling',id:'seq_dep',name:'Sequence-Dependent Setups (Dynamic)',t:'I',adders:[],tip:'Changeover time varies depending on the combination of products. For example, switching from dark to light colors takes 2 hours, but light to dark only takes 30 minutes. A setup matrix captures all these combinations so the schedule can minimize changeover time.'},
+  {g:'Capacity & Constraints',id:'single_par',name:'Single Machine Parallel Processing',t:'A',adders:['batching'],tip:'One machine runs multiple operations at the same time — for example, an oven that bakes several trays at once, or an autoclave that sterilizes multiple batches together. The schedule can group several operations together at the same time, based on a specific attribute and/or can limit the number of operations based on capacity.'},
+  {g:'Capacity & Constraints',id:'multi_par',name:'Multi-Machine Parallel Processing',t:'A',adders:[],tip:'A single job requires more than one machine running simultaneously — for example, one operation can be split across multiple machines to decrease the overall duration of the operation, allowing it to complete faster.'},
+  {g:'Capacity & Constraints',id:'incl_excl',name:'Inclusion / Exclusion Rules',t:'A',adders:[],tip:'Certain products must or cannot run at the same time on the same resource. For example, an inclusion rule requires two specific products to be scheduled together, while an exclusion rule prevents incompatible products from running at the same time on the same resource or across multiple resources.'},
+  {g:'Capacity & Constraints',id:'rework',name:'Rework Loops',t:'A',adders:[],tip:'When a product fails inspection or quality checks, it goes back through one or more production steps to be fixed or reprocessed. The schedule needs to handle these loops without disrupting the main plan.'},
+  {g:'Capacity & Constraints',id:'alt_res',name:'Alternate Resources',t:'F',adders:[],tip:'A production step can be done on any of several capable machines or work centers — the schedule picks the best available one. For example, a mixing step that can run on any of three mixing tanks.'},
+  {g:'Capacity & Constraints',id:'alt_rout',name:'Alternate Routings',t:'I',adders:[],tip:'There are multiple ways to make the same product — different sequences of steps or different machines depending on availability. The schedule evaluates which path is most efficient given current capacity.'},
+  {g:'Capacity & Constraints',id:'co_prod',name:'Co-Products / By-Products',t:'A',adders:['pegging'],tip:'A single production run creates more than one product at the same time — for example, a distillation process that produces multiple grades, or a chemical reaction that creates both a primary product and a by-product. Both outputs need to be tracked.'},
+  {g:'Capacity & Constraints',id:'cross_ord',name:'Cross-Site Order Dependencies',t:'A',adders:['multisite'],tip:'What you schedule at one facility has an effect on another — for example, a sub-assembly at Plant A feeds directly into final assembly at Plant B. These dependencies must be coordinated in the schedule.'},
+  {g:'Capacity & Constraints',id:'labor',name:'Labor / Crew Constraints',t:'I',adders:['constrained'],tip:'You can only run as many jobs as you have operators available. If a shift has 5 operators and each line needs one, you cannot run 6 lines at once. The schedule must account for labor availability alongside machine capacity.'},
+  {g:'Capacity & Constraints',id:'skilled',name:'Skilled Labor Requirements',t:'A',adders:['constrained'],tip:'Certain tasks can only be done by operators with specific training, certification, or skills. The schedule must match the right person to the right operation — not just any available operator can be assigned to an operation.'},
+  {g:'Capacity & Constraints',id:'tooling',name:'Tooling or Fixture Availability',t:'I',adders:['constrained'],tip:'You have molds, jigs, dies, or other tools that can only be used on one job at a time. If you only have two molds for a product family, you cannot run three of that same product family simultaneously even if machines are available.'},
+  {g:'Capacity & Constraints',id:'storage',name:'Storage Capacity Constraints',t:'I',adders:['constrained'],tip:'You have limited space between production steps or in your warehouse. If a buffer or storage area fills up, the upstream process must stop. The schedule must pace production to avoid congestion and bottlenecks.'},
+  {g:'Capacity & Constraints',id:'tanks',name:'Tank / Vessel Constraints',t:'A',adders:['constrained'],tip:'Tanks, vessels, or silos are shared between products and have strict rules around capacity, cleaning, and sequencing. For example, a tank must be cleaned before switching products, and can only hold a certain volume. Common in food, pharma, and chemical manufacturing.'},
+  {g:'Capacity & Constraints',id:'held',name:'Held Constraints',t:'A',adders:['constrained'],tip:'A resource consumed at one operation is not released until a later operation completes — for example, a mold loaded at Operation 10 remains occupied through Operations 20 and 30 before it is released. The schedule must account for this, to prevent other operations from scheduling a product that requires the same mold/constraint.'},
+  {g:'Material Pegging',id:'raw_peg',name:'FIFO Raw Material / Subcomponent Pegging',t:'I',adders:[],tip:'Material is allocated to orders in the sequence it was received — oldest stock is consumed first. WIP is allocated in the order it was completed. First In First Out.'},
+  {g:'Material Pegging',id:'rule_peg',name:'Rule-Based Pegging',t:'A',adders:['pegging'],tip:'You have defined business rules for how inventory gets matched to orders — for example, peg orders to other orders based on quantity, or always prioritize based on order number. The system follows these rules automatically rather than relying on manual decisions.'},
+  {g:'Material Pegging',id:'pri_peg',name:'Priority-Based Pegging',t:'A',adders:['pegging'],tip:'When supply is limited, higher-priority orders get material first. For example, a key customer or an urgent order gets allocated before standard orders. Priority tiers are configured and the system allocates accordingly.'},
+  {g:'Material Pegging',id:'hard_alloc',name:'Hard Allocations',t:'A',adders:[],tip:'Specific inventory or batches are locked to a specific order, customer, or production run. Includes pegging requirements such as lot and batch traceability raw material lots linkage to specific production orders through to finished goods. Common in industries such as pharma, food, and chemical manufacturing or any process where audit trails or quality holds are required.'},
+  {g:'Material Pegging',id:'sub_rules',name:'BoM Substitution Rules',t:'A',adders:['pegging'],tip:'If your first-choice ingredient or component is not available, the system can automatically switch to an approved alternative. The rules for which substitutes are allowed — and under what conditions — are configured in the system.'},
+  {g:'Material Pegging',id:'peg_tol',name:'Pegging Tolerances / Allowances',t:'A',adders:['pegging'],tip:'Orders can be filled slightly under or over the exact quantity, within an acceptable range. For example, if an order calls for 1,000 kg but you can only allocate 985 kg within tolerance, the system allows it to schedule instead of delaying or unscheduling the operation due to waiting for more material to satisfy the remaining 15 kg.'},
+  {g:'Sequencing',id:'campaign',name:'Product-Specific Campaigning Rules',t:'I',adders:[],tip:'A constraint applied per product or product family, per resource, that defines a minimum or maximum run quantity or duration. For example, a product family must run for at least a defined threshold before switching, or cannot run consecutively beyond a set limit. The schedule enforces these rules as hard constraints when sequencing production.'},
+  {g:'Sequencing',id:'setup_mx',name:'Minimize Changeovers Sequencing (Setup Matrix)',t:'I',adders:[],tip:'Sequence-dependent changeover times — calculated using a table to capture the time required to switch between product attribute combinations. The scheduler uses this matrix to sequence operations prioritizing reducing changeovers.'},
+  {g:'Sequencing',id:'due_date',name:'Due Date or Order Priority Based Scheduling',t:'F',adders:[],tip:'A hierarchical dispatch rule that forward schedules operations using earliest due date or order priority to determine sequence.'},
+  {g:'Order Management',id:'split',name:'Split Orders',t:'A',adders:[],tip:'A large order can be broken into smaller pieces and run simultaneously on multiple machines, or staggered across shifts, to hit a tight delivery date. The system tracks all pieces as part of the same original order.'},
+  {g:'Order Management',id:'order_creation',name:'Order Creation in ES',t:'A',adders:[],tip:'Determines whether production orders need to be created directly within Enterprise Scheduling while also being received from an upstream system. If orders are created in ES, additional configuration is required to define order generation rules, quantity constraints, and pegging logic.'},
+  {g:'Order Management',id:'res_order_size',name:'Resource Specific Order Sizing',t:'A',adders:[],tip:'Once an order is scheduled on a specific resource (such as a tank or oven), the order either needs to be split to account for the resource\'s quantity or size requirements, or the order quantity needs to be updated to match the resource capacity. This requires additional configuration to define sizing rules per resource.'},
+];
+
+// ═══════════════════════════════════════
+// DATA: OPERATIONAL CONTEXT
+// ═══════════════════════════════════════
+const OC=[
+  {id:'oc_routing',  grp:'Process Modeling',   lbl:'Routing Complexity',          sub:'Do your routings involve multiple operations or overlaps?',
+   opts:[{v:1,l:'Single op'},{v:2,l:'Multi-op, no overlap'},{v:3,l:'Multi-op + overlap'},{v:4,l:'Overlaps + concurrency'}],
+   gptHide:true, romTier:{1:'F',2:'I',3:'I',4:'A'}},
+  {id:'oc_parallel', grp:'Process Modeling',   lbl:'Parallel Processing',          sub:'Are concurrent operations or parallel processing used?',
+   opts:[{v:1,l:'Single op only'},{v:2,l:'Multi-op, no parallel'},{v:3,l:'Same-machine parallel'},{v:4,l:'Multi-machine parallel'}],
+   gptHide:true, romTier:{1:'F',2:'I',3:'A',4:'A'}},
+  {id:'oc_constraints',grp:'Constraints',      lbl:'Labor, Tooling & Storage',     sub:'Are labor, tooling, or storage constraints actively managed?',
+   opts:[{v:1,l:'No constraints'},{v:2,l:'Labor only'},{v:3,l:'Tooling or storage'},{v:4,l:'Labor + tooling + skilled'}],
+   gptHide:true, romTier:{1:'F',2:'I',3:'I',4:'A'}},
+  {id:'oc_tanks',    grp:'Constraints',        lbl:'Tanks / Held Constraints',     sub:'Do you use tanks or held constraints that affect scheduling?',
+   opts:[{v:1,l:'None'},{v:2,l:'Minimal'},{v:3,l:'Some'},{v:4,l:'Critical'}],
+   gptHide:true, romTier:{1:'F',2:'F',3:'A',4:'A'}},
+  {id:'oc_pegging',  grp:'Material Pegging',   lbl:'Material Pegging Complexity',  sub:'Is material pegging rule-based, priority-driven, or batch-specific?',
+   opts:[{v:1,l:'No pegging'},{v:2,l:'FIFO'},{v:3,l:'Rules-based'},{v:4,l:'Hard allocations / substitution'}],
+   gptHide:true, romTier:{1:'F',2:'I',3:'I',4:'A'}},
+  {id:'oc_sequencing',grp:'Sequencing',        lbl:'Sequencing Driver',            sub:'What primarily drives sequencing at this site?',
+   opts:[{v:1,l:'Due date'},{v:2,l:'Priority'},{v:3,l:'Static setup'},{v:4,l:'Sequence-dependent setup matrix'}],
+   gptHide:true, romTier:{1:'F',2:'F',3:'F',4:'I'}},
+  {id:'oc_rundur',   grp:'Sequencing',         lbl:'Min / Max Run Durations',      sub:'Are there minimum or maximum run durations for product families?',
+   opts:[{v:1,l:'No'},{v:2,l:'Min only'},{v:3,l:'Max only'},{v:4,l:'Both min and max'}],
+   gptHide:true, romTier:{1:'F',2:'F',3:'A',4:'A'}},
+  {id:'oc_mes',      grp:'Execution Feedback', lbl:'Shop Floor Integration',       sub:'Is your scheduling system integrated with your Shop Floor or MES?',
+   opts:[{v:1,l:'None (ERP only)'},{v:2,l:'Shop Floor to ERP'},{v:3,l:'Same cadence as ERP'},{v:4,l:'Higher frequency than ERP'}],
+   romTier:{1:'F',2:'F',3:'A',4:'A'}},
+  {id:'oc_schedmat', grp:'Readiness',          lbl:'Scheduling Process Maturity',  sub:'How mature is your current scheduling process?',
+   opts:[{v:1,l:'System-driven'},{v:2,l:'Partial manual + system'},{v:3,l:'Mostly manual'},{v:4,l:'Fully manual / ad hoc'}],
+   risk:true},
+  {id:'oc_datamat',  grp:'Readiness',          lbl:'Data Reliability & Completeness',sub:'How reliable and complete is your scheduling data (BoMs, routings, calendars)?',
+   opts:[{v:1,l:'Highly reliable'},{v:2,l:'Moderately reliable'},{v:3,l:'Partially unreliable'},{v:4,l:'Highly unreliable'}],
+   risk:true, pilot:true},
+  {id:'oc_datasys',  grp:'Readiness',          lbl:'Data & Process Documentation', sub:'How much of your data or routings rely on people vs. a system?',
+   opts:[{v:1,l:'100% system-based'},{v:2,l:'Partially documented'},{v:3,l:'Mostly people-based'},{v:4,l:'No documentation'}],
+   risk:true},
+  {id:'oc_resources',grp:'Scope',              lbl:'Number of Resources / Work Centers',sub:'How many scheduling resources (machines, work centers, lines) are in scope?',
+   opts:[{v:1,l:'1 – 10'},{v:2,l:'11 – 25'},{v:3,l:'26 – 75'},{v:4,l:'75+'}],
+   romTier:{1:'F',2:'F',3:'I',4:'A'}},
+  {id:'oc_skus',     grp:'Scope',              lbl:'Active SKUs / Finished Goods',  sub:'Approximate number of active SKUs scheduled at this site.',
+   opts:[{v:1,l:'< 50'},{v:2,l:'50 – 250'},{v:3,l:'251 – 1,000'},{v:4,l:'1,000+'}],
+   romTier:{1:'F',2:'F',3:'I',4:'A'}},
+  {id:'oc_ops',      grp:'Scope',              lbl:'Operations per Production Order',sub:'Max number of individual operations per production order.',
+   opts:[{v:1,l:'1 – 3'},{v:2,l:'4 – 8'},{v:3,l:'9 – 15'},{v:4,l:'15+'}],
+   romTier:{1:'F',2:'I',3:'I',4:'A'}},
+  {id:'oc_sched_horizon',grp:'Scope',          lbl:'Number of Operations in Scheduling Horizon',sub:'Approximate total number of operations within the scheduling horizon across all active production orders.',
+   opts:[{v:1,l:'< 1,000'},{v:2,l:'1,001 – 5,000'},{v:3,l:'5,001 – 10,000'},{v:4,l:'10,000+'}],
+   romTier:{1:'F',2:'I',3:'I',4:'A'}},
+  {id:'oc_bom_depth',grp:'Scope',              lbl:'Max BoM Depth',                sub:'What is the maximum depth of your Bills of Materials?',
+   opts:[{v:1,l:'1'},{v:2,l:'2 – 5'},{v:3,l:'6 – 9'},{v:4,l:'10+'}],
+   romTier:{1:'F',2:'I',3:'I',4:'A'}},
+];
+
+// ═══════════════════════════════════════
+// DATA: TIER RESOURCING
+// ═══════════════════════════════════════
+const TC={
+  F:{name:'Foundational',color:'var(--green)',bg:'var(--green-lt)',border:'#418f6255',weeks:27,sprints:3,maxRollout:4},
+  I:{name:'Intermediate',color:'var(--blue)',bg:'var(--blue-lt)',border:'#248f8e55',weeks:31,sprints:4,maxRollout:3},
+  A:{name:'Advanced',color:'var(--amber)',bg:'var(--amber-lt)',border:'#c47a0055',weeks:35,sprints:5,maxRollout:2},
+};
+const AW={pegging:0,timing:0,multisite:0,constrained:0,batching:0};
+const RW=20;
+const ROLLOUT_OVERLAP=4;
+
+const TPL_RES={
+  F:[
+    {role:'Delivery Manager',      reg:'NA',  hrs:470,  ph:{cc:170, cfg:180, tst:80,  hyp:40}},
+    {role:'Solution Architect',    reg:'NA',  hrs:440,  ph:{cc:320, cfg:120, tst:0,   hyp:0}},
+    {role:'Sr Solution Consultant',reg:'NA',  hrs:840,  ph:{cc:240, cfg:360, tst:160, hyp:80}},
+    {role:'Technology Consultant', reg:'IND', hrs:390,  ph:{cc:170, cfg:180, tst:40,  hyp:0}},
+    {role:'Solution Consultant',   reg:'IND', hrs:680,  ph:{cc:0,   cfg:360, tst:160, hyp:160}},
+  ],
+  I:[
+    {role:'Delivery Manager',      reg:'NA',  hrs:550,  ph:{cc:170, cfg:240, tst:100, hyp:40}},
+    {role:'Solution Architect',    reg:'NA',  hrs:560,  ph:{cc:320, cfg:240, tst:0,   hyp:0}},
+    {role:'Sr Solution Consultant',reg:'NA',  hrs:1000, ph:{cc:240, cfg:480, tst:200, hyp:80}},
+    {role:'Technology Consultant', reg:'IND', hrs:460,  ph:{cc:170, cfg:240, tst:50,  hyp:0}},
+    {role:'Solution Consultant',   reg:'IND', hrs:840,  ph:{cc:0,   cfg:480, tst:200, hyp:160}},
+  ],
+  A:[
+    {role:'Delivery Manager',      reg:'NA',  hrs:630,  ph:{cc:170, cfg:300, tst:120, hyp:40}},
+    {role:'Solution Architect',    reg:'NA',  hrs:680,  ph:{cc:320, cfg:360, tst:0,   hyp:0}},
+    {role:'Sr Solution Consultant',reg:'NA',  hrs:1160, ph:{cc:240, cfg:600, tst:240, hyp:80}},
+    {role:'Technology Consultant', reg:'IND', hrs:530,  ph:{cc:170, cfg:300, tst:60,  hyp:0}},
+    {role:'Solution Consultant',   reg:'IND', hrs:1000, ph:{cc:0,   cfg:600, tst:240, hyp:160}},
+  ],
+};
+const ROL_RES=[
+  {role:'Delivery Manager',      reg:'NA',  hrs:340, ph:{cc:40,  cfg:200, tst:80,  hyp:20}},
+  {role:'Sr Solution Consultant',reg:'NA',  hrs:680, ph:{cc:80,  cfg:400, tst:160, hyp:40}},
+  {role:'Technology Consultant', reg:'IND', hrs:300, ph:{cc:80,  cfg:140, tst:80,  hyp:0}},
+  {role:'Solution Consultant',   reg:'IND', hrs:680, ph:{cc:0,   cfg:440, tst:160, hyp:80}},
+];
+
+function get5Cs(tier){
+  const s=TC[tier].sprints;
+  const cfgWks=s*3;
+  const confirmWks={F:4,I:5,A:6}[tier];
+  return[
+    {key:'cc', lbl:'Connect & Commence', cls:'ph-connect',  wks:10},
+    {key:'cfg',lbl:`Configure (${s} sprints)`, cls:'ph-configure', wks:cfgWks},
+    {key:'tst',lbl:'Confirm',             cls:'ph-confirm', wks:confirmWks},
+    {key:'hyp',lbl:'Close',               cls:'ph-close',   wks:4},
+  ];
+}
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const S={
+  flow:'BUD', mode:'site',
+  proj:{name:'',by:'',date:'',stage:'BUD'},
+  excludedRoles:new Set(),
+  entries:[],   // [{id,name,sites,capScores:{},ocScores:{}}]
+  archetypes:[], curCap:0, curOC:0,
+};
+let entryIdCtr=0;
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+let cur=0;
+const STEP_LABELS=['STEP 1 OF 5','STEP 2 OF 5','STEP 3 OF 5','STEP 4 OF 5','STEP 5 OF 5'];
+function navTo(n){
+  if(n>cur) return; // can't skip forward
+  goTo(n);
+}
+function goTo(n){
+  // Reset pulse flags only when first entering scoring steps from another step
+  const prev = window._currentStep;
+  if(n===1 && prev!==1) triggerTabPulse('capProgress');
+  if(n===2 && prev!==2) triggerTabPulse('ocProgress');
+  window._currentStep = n;
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  // Restore all nav steps (may have been hidden in BUD mode)
+  for(let i=0;i<5;i++){
+    const el=document.getElementById('nav'+i);
+    el.style.display='';
+    el.className='snav'+(i<n?' done':i===n?' active':' locked');
+    el.querySelector('.snum').textContent=i<n?'✓':(i+1);
+  }
+  // Hide step 1 (capability) in sidebar for ROM
+  document.getElementById('nav1').style.display=S.flow==='ROM'?'none':'';
+  document.getElementById('navStep').textContent=STEP_LABELS[n];
+  cur=n; window.scrollTo(0,0);
+  document.querySelector('.main').classList.toggle('results-active', n===4);
+  // Update sidebar mode
+  if(n>0){
+    document.getElementById('sbMode').style.display='block';
+    const ml={site:'By Site',bu:'By Business Unit',archetype:'By Archetype'};
+    document.getElementById('sbModeVal').textContent=`${S.flow} · ${ml[S.mode]}`;
+  }
+}
+
+// ═══════════════════════════════════════
+// STEP 0
+// ═══════════════════════════════════════
+function setFlowFromStage(f){
+  S.flow=f;
+  // Show/hide input mode for BUD (not needed)
+  const modeField = document.getElementById('modeSelect').closest('.field');
+  if(modeField) modeField.style.display = f==='BUD' ? 'none' : '';
+  const entryCard = document.querySelector('#step0 .card:nth-child(3)');
+  if(entryCard) entryCard.style.display = f==='BUD' ? 'none' : '';
+}
+function setModeFromSelect(m){
+  S.mode=m;
+  const lbl={site:'Site',bu:'Business Unit',archetype:'Archetype'}[m];
+  const ph={site:'Site name (e.g. Birmingham Plant, Site 3)',bu:'Business Unit name (e.g. North America BU)',archetype:'Archetype name (e.g. Archetype A, Value Stream 1)'};
+  document.getElementById('entryCardTitle').textContent=lbl+'s';
+  document.getElementById('addEntryLabel').textContent=lbl;
+  document.getElementById('newEntry').placeholder=ph[m];
+  const helpText={
+    site:'Add each manufacturing site — the tool will auto-cluster them into archetypes.',
+    bu:'Add each Business Unit with its site count. Each BU is treated as its own archetype.',
+    archetype:'Add each archetype with its site count. No auto-clustering.'
+  };
+  document.getElementById('entryHelp').innerHTML=helpText[m];
+  // Show site count in add-row only for BU/Archetype modes
+  const wrap=document.getElementById('newSiteCountWrap');
+  if(wrap) wrap.style.display=m!=='site'?'flex':'none';
+  renderEntryList();
+}
+function addEntry(){
+  const inp=document.getElementById('newEntry');
+  const n=inp.value.trim(); if(!n)return;
+  const id=++entryIdCtr;
+  const siteCountEl=document.getElementById('newSiteCount');
+  const sites=siteCountEl?parseInt(siteCountEl.value)||1:1;
+  S.entries.push({id,name:n,sites,capScores:{},ocScores:{}});
+  inp.value='';
+  if(siteCountEl) siteCountEl.value=1;
+  inp.focus();
+  renderEntryList();
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('newEntry').addEventListener('keydown',e=>{if(e.key==='Enter')addEntry();});
+  document.getElementById('projDate').valueAsDate=new Date();
+  setFlowFromStage('BUD'); // initialize UI to match default dropdown selection
+  renderEntryList();
+  renderSessionPanel();
+});
+function removeEntry(id){S.entries=S.entries.filter(e=>e.id!==id);renderEntryList();}
+function renderEntryList(){
+  const showCount=S.mode!=='site';
+  document.getElementById('entryList').innerHTML=S.entries.map(e=>`
+    <div class="site-chip">
+      <input style="flex:1;border:none;background:transparent;font-size:13px;font-weight:700;color:var(--kdeep);font-family:'Lato',sans-serif;outline:none;" placeholder="${{site:'Site name',bu:'Business Unit name',archetype:'Archetype name'}[S.mode]}" value="${e.name}" oninput="S.entries.find(x=>x.id==${e.id}).name=this.value">
+      ${showCount?`<div class="sc-count"><label>Sites</label><input type="number" min="1" value="${e.sites}" oninput="S.entries.find(x=>x.id==${e.id}).sites=parseInt(this.value)||1"></div>`:''}
+      <button class="sc-rm" onclick="removeEntry(${e.id})">×</button>
+    </div>`).join('');
+  document.getElementById('entryCount').textContent=S.entries.length+' added';
+}
+function goStep0(){
+  S.proj.name=document.getElementById('projName').value;
+  S.proj.by=document.getElementById('prepBy').value;
+  S.proj.date=document.getElementById('projDate').value;
+  S.proj.stage=document.getElementById('oppStage').value;
+  S.flow=S.proj.stage;
+  S.mode=document.getElementById('modeSelect').value;
+  // BUD bypasses entry requirement entirely
+  if(S.flow==='BUD'){ goToBud(); return; }
+  S.entries=S.entries.filter(e=>e.name.trim());
+  if(!S.entries.length){alert('Add at least one entry to continue.');return;}
+  if(S.flow==='GPT'){
+    S.curCap=0; renderCapScoring(); goTo(1);
+  } else {
+    S.curOC=0; renderOCScoring(); goTo(2);
+  }
+}
+
+// ═══════════════════════════════════════
+// STEP 1: CAPABILITY SCORING
+// ═══════════════════════════════════════
+function triggerTabPulse(progressId){
+  if(S.entries.length<=1) return;
+  const flagKey = '_pulsed_'+progressId;
+  if(window[flagKey]) return;
+  window[flagKey] = true;
+  setTimeout(()=>{
+    document.querySelectorAll('#'+progressId+' .site-prog-item:not(.active):not(.scored)').forEach(el=>{
+      el.classList.remove('pulse');
+      void el.offsetWidth;
+      el.classList.add('pulse');
+      setTimeout(()=>el.classList.remove('pulse'),2000);
+    });
+  },400);
+}
+function renderCapScoring(){
+  document.getElementById('capModeLabel').textContent={site:'site',bu:'business unit',archetype:'archetype'}[S.mode];
+  renderCapProgress();
+  renderCapGroups();
+  updateCapNav();
+}
+function renderCapProgress(){
+  document.getElementById('capProgress').innerHTML=S.entries.map((e,i)=>{
+    const scored=Object.values(e.capScores).some(v=>v>0);
+    const state=i===S.curCap?'active':scored?'scored':'warning';
+    return `<div class="site-prog-item ${state}" onclick="jumpCap(${i})">${scored&&i!==S.curCap?'✓ ':''}${e.name}</div>`;
+  }).join('');
+}
+function renderCapGroups(){
+  const entry=S.entries[S.curCap];
+  const groups={};
+  CAPS.forEach(c=>{if(!groups[c.g])groups[c.g]=[];groups[c.g].push(c);});
+  document.getElementById('capGroups').innerHTML=Object.entries(groups).map(([g,caps])=>`
+    <div class="cg"><div class="cg-hd">${g}</div>
+    ${caps.map(c=>{
+      const s=entry.capScores[c.id]||0;
+      return `<div class="crow ${s===4?'s4':s===3?'s3':s===1?'s1':''}" id="cr-${c.id}">
+        <button class="cap-info-btn" tabindex="-1">?<div class="cap-tooltip">${c.tip}</div></button>
+        <span class="cname">${c.name}</span>
+        <span class="ctbadge b${c.t}">${c.t}</span>
+        <div class="sbts">${[1,2,3,4].map(n=>`<button class="sbt ${s===n?'a'+n:''}" onclick="setCapScore(${S.curCap},'${c.id}',${n})">${n}</button>`).join('')}</div>
+      </div>`;
+    }).join('')}</div>`).join('');
+}
+function setCapScore(ei,id,n){
+  const entry=S.entries[ei]; const prev=entry.capScores[id]||0;
+  entry.capScores[id]=prev===n?0:n; const v=entry.capScores[id];
+  const row=document.getElementById('cr-'+id);
+  if(row){
+    row.className='crow'+(v===4?' s4':v===3?' s3':v===1?' s1':'');
+    row.querySelectorAll('.sbt').forEach((b,i)=>b.className=`sbt ${v===i+1?'a'+(i+1):''}`);
+  }
+  renderCapProgress();
+}
+function jumpCap(i){S.curCap=i;renderCapScoring();}
+let _toastCallback = null;
+function showScopeToast(cb){
+  _toastCallback = cb || null;
+  const toast=document.getElementById('scopeToast');
+  toast.classList.add('show');
+}
+function dismissToast(){
+  const toast=document.getElementById('scopeToast');
+  toast.classList.remove('show');
+  if(_toastCallback){ _toastCallback(); _toastCallback=null; }
+}
+function cancelToast(){
+  const toast=document.getElementById('scopeToast');
+  toast.classList.remove('show');
+  _toastCallback=null;
+}
+function shiftCapEntry(d){S.curCap=Math.max(0,Math.min(S.entries.length-1,S.curCap+d));renderCapScoring();window.scrollTo(0,0);}
+function updateCapNav(){
+  const n=S.entries.length;
+  document.getElementById('capPrev').style.display=n>1&&S.curCap>0?'':'none';
+  document.getElementById('capNext').style.display=n>1&&S.curCap<n-1?'':'none';
+}
+function hasUnscoredSites(){
+  return S.entries.some(e=>{
+    const capAnswered = Object.values(e.capScores||{}).some(v=>v>0);
+    const ocAnswered  = Object.values(e.ocScores||{}).some(v=>v>0);
+    return S.flow==='GPT' ? !capAnswered : !ocAnswered;
+  });
+}
+function goStep1(){
+  if(hasUnscoredSites()){
+    showScopeToast(()=>{S.curOC=0;renderOCScoring();goTo(2);});
+  } else {
+    S.curOC=0;renderOCScoring();goTo(2);
+  }
+}
+
+// ═══════════════════════════════════════
+// STEP 2: OPERATIONAL CONTEXT
+// ═══════════════════════════════════════
+function renderOCScoring(){
+  document.getElementById('ocModeLabel').textContent={site:'site',bu:'business unit',archetype:'archetype'}[S.mode];
+  document.getElementById('romNote').style.display=S.flow==='ROM'?'block':'none';
+  document.getElementById('step2Back').onclick=()=>navTo(S.flow==='ROM'?0:1);
+  renderOCProgress();
+  renderOCGrid();
+  updateOCNav();
+}
+function renderOCProgress(){
+  document.getElementById('ocProgress').innerHTML=S.entries.map((e,i)=>{
+    const answered=Object.values(e.ocScores||{}).some(v=>v>0);
+    const state=i===S.curOC?'active':answered?'scored':'warning';
+    return `<div class="site-prog-item ${state}" onclick="jumpOC(${i})">${answered&&i!==S.curOC?'✓ ':''}${e.name}</div>`;
+  }).join('');
+}
+function renderOCGrid(){
+  const entry=S.entries[S.curOC];
+  const items=S.flow==='ROM'?OC.filter(o=>!o.gptOnly):S.flow==='GPT'?OC.filter(o=>!o.gptHide):OC;
+  document.getElementById('ocGrid').innerHTML=items.map(item=>{
+    const cur=entry.ocScores[item.id]||0;
+    return `<div class="ai">
+      <label>${item.lbl}</label>
+      <div class="ai-desc">${item.sub}</div>
+      <div class="oc-opts">
+        ${item.opts.map(o=>`
+          <div class="oc-opt ${cur===o.v?'on':''}" onclick="setOCScore(${S.curOC},'${item.id}',${o.v},this,'${item.id}')">
+            <div class="oc-opt-val">${o.v}</div>
+            <div class="oc-opt-lbl">${o.l}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  // Single tier badge below grid (ROM only)
+  const existingBadge=document.getElementById('romTierSummary');
+  if(existingBadge) existingBadge.remove();
+  if(S.flow==='ROM'){
+    const t=calcROMTier(S.curOC);
+    const badge=document.createElement('div');
+    badge.id='romTierSummary';
+    badge.style.cssText='margin-top:14px;display:flex;align-items:center;gap:10px;';
+    badge.innerHTML=`${tierBadgeHTML(t)}<span style="font-size:12px;color:var(--g500);font-weight:300;">Suggested tier based on all responses above</span>`;
+    document.getElementById('ocGrid').after(badge);
+  }
+}
+function tierBadgeHTML(t){
+  const tc=TC[t];
+  return `<span class="tier-badge" style="background:${tc.bg};color:${tc.color};border:1px solid ${tc.border};">${tc.name}</span>`;
+}
+function setOCScore(ei,itemId,val,el){
+  S.entries[ei].ocScores[itemId]=val;
+  el.closest('.oc-opts').querySelectorAll('.oc-opt').forEach((o,i)=>{
+    const item=OC.find(x=>x.id===itemId);
+    o.classList.toggle('on',item.opts[i].v===val);
+  });
+  if(S.flow==='ROM') renderOCGrid(); // refresh tier badge
+}
+function calcROMTier(ei){
+  const oc=S.entries[ei].ocScores; let tier='F';
+  OC.filter(o=>!o.gptOnly&&o.romTier).forEach(item=>{
+    const v=oc[item.id]; if(!v)return;
+    const t=item.romTier[v]; if(!t)return;
+    if(t==='A')tier='A'; else if(t==='I'&&tier!=='A')tier='I';
+  });
+  return tier;
+}
+function jumpOC(i){S.curOC=i;renderOCScoring();}
+function shiftOCEntry(d){S.curOC=Math.max(0,Math.min(S.entries.length-1,S.curOC+d));renderOCScoring();window.scrollTo(0,0);}
+function updateOCNav(){
+  const n=S.entries.length;
+  document.getElementById('ocPrev').style.display=n>1&&S.curOC>0?'':'none';
+  document.getElementById('ocNext').style.display=n>1&&S.curOC<n-1?'':'none';
+}
+function goStep2(){
+  if(hasUnscoredSites()){
+    showScopeToast(()=>{cluster();renderReview();goTo(3);});
+  } else {
+    cluster();renderReview();goTo(3);
+  }
+}
+
+// ═══════════════════════════════════════
+// CLUSTERING
+// ═══════════════════════════════════════
+function entryTier(entry){
+  if(S.flow==='ROM') return calcROMTier(S.entries.indexOf(entry));
+  const sc=entry.capScores; let t='F';
+  CAPS.forEach(c=>{const s=sc[c.id]||0;if(s>=3){if(c.t==='A')t='A';else if(c.t==='I'&&t==='F')t='I';}});
+  return t;
+}
+function entryAdders(entry){
+  const add=new Set();
+  if(S.flow==='GPT'){
+    const sc=entry.capScores;
+    CAPS.forEach(c=>{if((sc[c.id]||0)>=3)c.adders.forEach(a=>add.add(a));});
+    const constCaps=['labor','skilled','tooling','storage','tanks','held'];
+    if(constCaps.filter(c=>(sc[c]||0)>=3).length>2)add.add('constrained');
+  } else {
+    const oc=entry.ocScores;
+    if((oc['oc_pegging']||0)>=3)add.add('pegging');
+    if((oc['oc_rundur']||0)>=3||(oc['oc_routing']||0)>=3)add.add('timing');
+    if((oc['oc_constraints']||0)>=4)add.add('constrained');
+    if((oc['oc_parallel']||0)>=3)add.add('batching');
+  }
+  return [...add].sort();
+}
+// Max Advanced-tier capabilities a site can have and still roll into an existing archetype
+const ROLLOUT_MAX_A_CAPS = 4;
+
+// Returns the set of scored capability IDs (score >= 3) for an entry
+// In ROM mode, uses tier+adder string as a proxy fingerprint since capScores aren't populated
+function entryCaps(entry){
+  if(S.flow==='ROM'){
+    // Build a pseudo-fingerprint from tier + adders so ROM sites cluster correctly
+    const t = entryTier(entry);
+    const ad = entryAdders(entry);
+    return new Set([`tier:${t}`, ...ad.map(a=>`adder:${a}`)]);
+  }
+  const sc = entry.capScores;
+  return new Set(CAPS.filter(c=>(sc[c.id]||0)>=3).map(c=>c.id));
+}
+
+// Returns count of Advanced-tier capabilities scored >= 3
+// In ROM mode, use adder count as a proxy
+function entryAdvancedCapCount(entry){
+  if(S.flow==='ROM') return entryAdders(entry).length;
+  const sc = entry.capScores;
+  return CAPS.filter(c=>c.t==='A'&&(sc[c.id]||0)>=3).length;
+}
+
+// Returns true if candidate's caps are a full subset of archetype's caps
+function isSubset(candidateCaps, archetypeCaps){
+  for(const cap of candidateCaps){
+    if(!archetypeCaps.has(cap)) return false;
+  }
+  return true;
+}
+
+function cluster(){
+  if(S.mode!=='site'){
+    S.archetypes=S.entries.map((e,i)=>({
+      id:i+1, name:e.name, tier:entryTier(e), adders:entryAdders(e),
+      entries:[e], siteCount:e.sites||1,
+      caps:entryCaps(e), excludedRoles:new Set(),
+    }));
+    return;
+  }
+
+  // Sort entries by capability count descending — most complex seeds first
+  const sorted=[...S.entries].sort((a,b)=>entryCaps(b).size-entryCaps(a).size);
+
+  const archs=[];
+  const assigned=new Map(); // entry.id -> archetype index
+
+  sorted.forEach(e=>{
+    const eCaps=entryCaps(e);
+    const eAdvA=entryAdvancedCapCount(e);
+    const eTier=entryTier(e);
+
+    // Can this site roll into an existing archetype?
+    // Conditions: true subset of archetype caps AND <= ROLLOUT_MAX_A_CAPS Advanced caps
+    let rolledIn=false;
+    if(eAdvA<=ROLLOUT_MAX_A_CAPS){
+      for(let ai=0;ai<archs.length;ai++){
+        const arch=archs[ai];
+        if(isSubset(eCaps,arch.caps)){
+          arch.entries.push({...e, _rolloutTier:eTier, _isSeed:false});
+          arch.siteCount+=e.sites||1;
+          assigned.set(e.id,ai);
+          rolledIn=true;
+          break;
+        }
+      }
+    }
+
+    if(!rolledIn){
+      // Seed a new archetype — first entry is the template site
+      assigned.set(e.id,archs.length);
+      archs.push({
+        id:archs.length+1,
+        name:'Archetype '+(archs.length+1),
+        tier:eTier,
+        adders:entryAdders(e),
+        entries:[{...e, _rolloutTier:eTier, _isSeed:true}],
+        siteCount:e.sites||1,
+        caps:eCaps,
+        excludedRoles:new Set(),
+      });
+    }
+  });
+
+  S.archetypes=archs;
+}
+
+// ═══════════════════════════════════════
+// STEP 3: ARCHETYPE REVIEW
+// ═══════════════════════════════════════
+
+// Wave packing that respects each rollout site's own tier cap.
+// Rules: max 2A, max 3I (if <=1A), max 4F adjusted, max 4 total per wave.
+function calcArchWaves(arch){
+  let remA=0, remI=0, remF=0;
+
+  if(S.mode==='site'){
+    // Site mode: rollout entries are tagged with _isSeed:false
+    const rollouts = arch.entries.filter(e=>e._isSeed===false);
+    if(rollouts.length===0) return 0;
+    rollouts.forEach(e=>{
+      const t = e._rolloutTier || arch.tier;
+      const n = e.sites||1;
+      if(t==='A') remA+=n;
+      else if(t==='I') remI+=n;
+      else remF+=n;
+    });
+  } else {
+    // Archetype/BU mode: rollout sites = siteCount - 1, all at archetype's tier
+    const rs = (arch.siteCount||1) - 1;
+    if(rs<=0) return 0;
+    if(arch.tier==='A') remA=rs;
+    else if(arch.tier==='I') remI=rs;
+    else remF=rs;
+  }
+
+  // Greedy wave packing (same rules as budCalcWaves)
+  let waves=0, safety=0;
+  while((remA+remI+remF)>0 && safety++<200){
+    const wA=Math.min(remA,2);
+    const maxI=wA>=2?1:wA===1?2:3;
+    const wI=Math.min(remI,maxI);
+    const wF=Math.min(remF,4-wA-wI);
+    if(wA+wI+wF===0) break;
+    remA-=wA; remI-=wI; remF-=wF;
+    waves++;
+  }
+  return waves;
+}
+function renderReview(){
+  const html=`
+    <div class="ibox" style="margin-bottom:18px;">
+      Auto-clustered <strong>${S.archetypes.length} archetype(s)</strong> from <strong>${S.entries.length} ${S.mode}(s)</strong>.
+      ${S.mode==='site'?'Sites with unique capability profiles each become their own template build. Sites whose capabilities are fully covered by an existing archetype (and have ≤ 4 Advanced capabilities) roll into that archetype\'s waves.':'Each entry is its own archetype.'}
+    </div>
+    ${S.archetypes.map((a,i)=>{
+      const tc=TC[a.tier];
+      const aw=a.adders.reduce((s,x)=>s+(AW[x]||0),0);
+      const tw=tc.weeks+aw; const rs=a.siteCount-1;
+      const waves=calcArchWaves(a);
+      const active=S.flow==='GPT'?CAPS.filter(c=>a.entries.some(e=>(e.capScores[c.id]||0)>=3)):[];
+      return `<div class="arc-card" style="border-left-color:${tc.color};">
+        <div class="arc-hd">
+          <span class="arc-num">Arch ${i+1}</span>
+          <input class="arc-ninput" type="text" value="${a.name}" oninput="S.archetypes[${i}].name=this.value">
+          <span class="tchip" style="background:${tc.bg};color:${tc.color};border:1px solid ${tc.border};">${tc.name}</span>
+          ${a.adders.map(x=>`<span class="arc-ap">+ ${x}</span>`).join('')}
+          <span style="font-size:12px;color:var(--g400);margin-left:auto;">${a.siteCount} site${a.siteCount!==1?'s':''} · ${waves>0?'1 template + '+waves+' rollout wave'+(waves!==1?'s':''):'Template only'}</span>
+        </div>
+        <div class="arc-sites">${a.entries.map(e=>`<span class="arc-sp">📍 ${e.name}${S.mode!=='site'&&e.sites>1?' ('+e.sites+' sites)':''}</span>`).join('')}</div>
+        ${active.length?`<div class="arc-caps">${active.slice(0,16).map(c=>`<span class="arc-cap">${c.name}</span>`).join('')}${active.length>16?`<span class="arc-cap">+${active.length-16} more</span>`:''}</div>`:''}
+        <div style="font-size:11px;color:var(--g500);margin-top:8px;font-weight:300;">${tw} week template build · ${tc.sprints} configure sprints · max ${tc.maxRollout} sites per rollout wave</div>
+      </div>`;
+    }).join('')}`;
+  document.getElementById('archReview').innerHTML=html;
+}
+
+// ═══════════════════════════════════════
+// STEP 4: RESULTS
+// ═══════════════════════════════════════
+function genResults(){
+  // Sync names from inputs
+  document.querySelectorAll('.arc-ninput').forEach((inp,i)=>{S.archetypes[i].name=inp.value;});
+  goTo(4);
+  saveSession(true); // full save on reaching Estimate Summary
+  document.getElementById('rSub').textContent=
+    `${S.proj.name||'Project'} · ${S.entries.length} ${S.mode}(s) · ${S.archetypes.length} archetype(s) · ${S.proj.date||''}`;
+
+  let html=''; let totalHrs=0; let riskHtml='';
+
+  S.archetypes.forEach((arch,ai)=>{
+    const tc=TC[arch.tier];
+    let aw=0; arch.adders.forEach(x=>aw+=(AW[x]||0));
+    const tw=tc.weeks+aw;
+    const rs=arch.siteCount-1;
+    const waves=calcArchWaves(arch);
+    const excl=arch.excludedRoles||new Set();
+    const tplH=TPL_RES[arch.tier].filter(r=>!excl.has(r.role)).reduce((s,r)=>s+r.hrs,0);
+    const rolHperWave=ROL_RES.filter(r=>!excl.has(r.role)).reduce((s,r)=>s+r.hrs,0);
+    const rolH=rolHperWave*waves;
+    const aH=tplH+rolH; totalHrs+=aH;
+    const active=S.flow==='GPT'?CAPS.filter(c=>arch.entries.some(e=>(e.capScores[c.id]||0)>=3)):[];
+
+    // Risk flags — inline on card
+    // Readiness risk: data maturity, scheduling maturity, documentation
+    // These NEVER affect tier — tier is complexity only.
+    // Contingency = 5% of rollout hrs, or 5% of template hrs if single site.
+    const hasRisk=arch.entries.some(e=>(e.ocScores['oc_datamat']||1)>=3||(e.ocScores['oc_schedmat']||1)>=3||(e.ocScores['oc_datasys']||1)>=3);
+    let cardFlags='';
+    if(hasRisk){
+      const baseHrs=waves>0?rolH:tplH;
+      const contingency=Math.round(baseHrs*0.05);
+      if(!arch.contingencyPct) arch.contingencyPct=5; // auto-suggest 5% on first risk detection
+      if(contingency>0) cardFlags+=`<div class="warn-box" style="margin-bottom:8px;"><span>⚠️</span><div><strong>Readiness risk:</strong> Low data or scheduling maturity detected. Recommend a ~<strong>${contingency.toLocaleString()} hrs</strong> contingency (5% of ${waves>0?'rollout':'template'} hours) or update contingency percentage below.</div></div>`;
+    }
+    // Pilot flag — inline on card
+    const pilotEntries=arch.entries.filter(e=>(e.ocScores['oc_datamat']||3)<=2);
+    if(pilotEntries.length){
+      // pilot candidate info removed
+    }
+
+    // Resource table data
+    const all=[];
+    TPL_RES[arch.tier].forEach(r=>{const rm=ROL_RES.find(x=>x.role===r.role);all.push({role:r.role,tpl:r.hrs,perWave:rm?rm.hrs:0});});
+    ROL_RES.filter(r=>!TPL_RES[arch.tier].find(t=>t.role===r.role)).forEach(r=>all.push({role:r.role,tpl:0,perWave:r.hrs}));
+
+    html+=`<div class="a-result">
+      <div class="a-result-hd">
+        <span style="font-size:10px;font-weight:700;background:rgba(255,255,255,.15);padding:3px 9px;border-radius:99px;letter-spacing:.5px;">ARCH ${ai+1}</span>
+        <span class="a-result-title">${arch.name}</span>
+        <span class="tchip" style="background:${tc.bg};color:${tc.color};border:1px solid ${tc.border};">${tc.name}</span>
+        ${arch.adders.map(x=>`<span class="arc-ap">+ ${x}${(AW[x]||0)>0?' +'+AW[x]+'w':''}</span>`).join('')}
+        <span style="font-size:12px;color:rgba(255,255,255,.5);margin-left:auto;">${arch.siteCount} site${arch.siteCount!==1?'s':''}</span>
+      </div>
+      <div class="a-result-body">
+        <div class="arc-sites" style="margin-bottom:12px;">${arch.entries.map(e=>`<span class="arc-sp">📍 ${e.name}${S.mode!=='site'&&e.sites>1?' ('+e.sites+')':''}</span>`).join('')}</div>
+        ${cardFlags}
+        <div class="rgrid" style="grid-template-columns:repeat(5,1fr);">
+          <div class="rcard"><div class="rcard-lbl">Template Build</div><div class="rcard-val">${tw} wks</div></div>
+          <div class="rcard"><div class="rcard-lbl">Configure Sprints</div><div class="rcard-val">${tc.sprints}</div></div>
+          <div class="rcard"><div class="rcard-lbl">Rollout Waves</div><div class="rcard-val">${waves}</div></div>
+          <div class="rcard"><div class="rcard-lbl">Total Hours</div><div class="rcard-val" style="color:var(--kred);">${aH.toLocaleString()}</div><div class="rcard-sub">Template + rollout waves</div></div>
+          <div class="rcard" style="background:#FEF9EC;border-color:#F4C842;">
+            <div class="rcard-lbl" style="color:#7c5c00;">Contingency</div>
+            <div style="display:flex;align-items:baseline;gap:4px;">
+              <input type="number" min="0" max="50" value="${arch.contingencyPct||0}" id="contingencyInput_${ai}"
+                style="width:42px;font-size:22px;font-weight:900;color:#7c3800;background:transparent;border:none;border-bottom:1.5px solid #F4C842;font-family:'Lato',sans-serif;outline:none;padding:0;"
+                oninput="S.archetypes[${ai}].contingencyPct=Math.max(0,Math.min(50,+this.value||0));updateContingency();">
+              <span style="font-size:14px;font-weight:700;color:#c47a00;">%</span>
+            </div>
+            <div class="rcard-sub" style="color:#7c5c00;" id="contingencyHrsCard_${ai}">${Math.round(aH*(arch.contingencyPct||0)/100).toLocaleString()} hrs</div>
+          </div>
+        </div>
+        <div class="gantt-placeholder" data-ai="${ai}"></div>
+        ${buildResTable(arch.tier,waves,rolHperWave,tplH,tc.maxRollout,ai,arch.excludedRoles||new Set())}
+        ${active.length?`<div><div class="caps-hd">Capabilities in scope (score ≥ 3)</div><div class="arc-caps">${active.map(c=>`<span class="arc-cap">${c.name}</span>`).join('')}</div></div>`:''}
+      </div>
+    </div>`;
+  });
+
+  const maxW=Math.max(...S.archetypes.map(a=>{
+    let aw=0;a.adders.forEach(x=>aw+=(AW[x]||0));
+    const tw=TC[a.tier].weeks+aw;
+    const waves=calcArchWaves(a);
+    return waves===0?tw:(tw-ROLLOUT_OVERLAP)+waves*RW;
+  }));
+
+  html+=`<div class="r-totals" id="rTotalsCard">
+    <h3>Program Totals — ${S.proj.name||'Project'}</h3>
+    <div class="tgrid" style="grid-template-columns:repeat(5,1fr);">
+      <div><div class="titem-lbl">Total Sites</div><div class="titem-val">${S.entries.reduce((s,e)=>s+(e.sites||1),0)}</div></div>
+      <div><div class="titem-lbl">Archetypes</div><div class="titem-val">${S.archetypes.length}</div></div>
+      <div><div class="titem-lbl">Total Hours</div><div class="titem-val" style="color:var(--ksky);">${totalHrs.toLocaleString()}</div></div>
+      <div><div class="titem-lbl">Contingency</div><div class="titem-val" style="color:var(--ksky);" id="contingencyHrsLabel">${S.archetypes.reduce((s,a,i)=>s+Math.round((window._archHrs&&window._archHrs[i]?window._archHrs[i]:0)*(a.contingencyPct||0)/100),0).toLocaleString()} hrs</div></div>
+    </div>
+  </div>
+  <div class="disclaimer"><strong>Scoping assumptions:</strong><ul style="margin:6px 0 0 0;padding-left:18px;line-height:1.9;font-weight:700;color:var(--g500);font-size:11px;">
+    <li>The Connect phase of a rollout wave begins at the start of the prior Close phase.</li>
+    <li>Rollout wave capacity: Foundational = 4 sites &nbsp;·&nbsp; Intermediate = 3 sites &nbsp;·&nbsp; Advanced = 2 sites per wave.</li>
+    <li>Deviations from the template require separate scoping.</li>
+    <li>Customer data is assumed to be clean, complete, and integrated at the start of Configure phase.</li>
+  </ul></div>`;
+
+  window._totalHrs = totalHrs;
+  window._archHrs = S.archetypes.reduce((acc,a,i)=>{
+    const tc=TC[a.tier]; let aw=0; a.adders.forEach(x=>aw+=(AW[x]||0));
+    const exclA=a.excludedRoles||new Set();
+    const tH=TPL_RES[a.tier].filter(r=>!exclA.has(r.role)).reduce((s,r)=>s+r.hrs,0);
+    const rH=ROL_RES.filter(r=>!exclA.has(r.role)).reduce((s,r)=>s+r.hrs,0);
+    const waves=calcArchWaves(a);
+    acc[i]=tH+rH*waves; return acc;
+  },{});
+
+  // Inject HTML first so rContent has measurable width
+  document.getElementById('rContent').innerHTML=html;
+
+  // Now replace placeholders with properly-sized Gantts
+  window._ganttParams = S.archetypes.map((arch,ai)=>{
+    const tc=TC[arch.tier]; let aw=0; arch.adders.forEach(x=>aw+=(AW[x]||0));
+    const tw=tc.weeks+aw; const rs=arch.siteCount-1; const waves=calcArchWaves(arch);
+    return {arch,tw,rs,waves,maxPerWave:tc.maxRollout};
+  });
+
+  // Shared scale — all Gantts use the same template weeks so bars are comparable
+  const globalMaxWks = Math.max(...window._ganttParams.map(p=>p.tw));
+
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.gantt-placeholder').forEach((el,i)=>{
+      const p = window._ganttParams[i];
+      if(p) el.outerHTML = buildGantt(p.arch, p.tw, p.rs, p.waves, p.maxPerWave, globalMaxWks);
+    });
+
+    // Gantt now uses percentage widths — resizes automatically with CSS, no JS needed
+    if(window._ganttResizeObserver) window._ganttResizeObserver.disconnect();
+    if(window._ganttResizeHandler) window.removeEventListener('resize', window._ganttResizeHandler);
+  });
+}
+
+function updateContingency(){
+  // Update each archetype's contingency hrs display
+  S.archetypes.forEach((arch,ai)=>{
+    const archHrs = window._archHrs && window._archHrs[ai] ? window._archHrs[ai] : 0;
+    const hrs = Math.round(archHrs * (arch.contingencyPct||0) / 100);
+    const card = document.getElementById('contingencyHrsCard_'+ai);
+    if(card) card.textContent = hrs.toLocaleString() + ' hrs';
+    const input = document.getElementById('contingencyInput_'+ai);
+    if(input) input.value = arch.contingencyPct||0;
+  });
+  // Update Program Totals — sum of all archetype contingency hrs
+  const totalContingencyHrs = S.archetypes.reduce((s,a,i)=>{
+    const archHrs = window._archHrs && window._archHrs[i] ? window._archHrs[i] : 0;
+    return s + Math.round(archHrs * (a.contingencyPct||0) / 100);
+  },0);
+  const lbl = document.getElementById('contingencyHrsLabel');
+  if(lbl) lbl.textContent = totalContingencyHrs.toLocaleString() + ' hrs';
+  // Save silently — overwrite only, never version
+  if(_loadedSessionKey){
+    const sessions = getSessions();
+    const idx = sessions.findIndex(s=>s.key===_loadedSessionKey);
+    const snap = serializeState();
+    const meta = sessionMeta();
+    if(idx>-1){ sessions[idx].snap=snap; sessions[idx].meta=meta; sessions[idx].updatedAt=Date.now(); putSessions(sessions); }
+    _loadedSessionSnapshot = snap;
+  }
+}
+
+// ═══════════════════════════════════════
+// GANTT
+// ═══════════════════════════════════════
+function buildGantt(arch,tw,rs,waves,maxPerWave,globalMaxWks){
+  const tier=arch.tier;
+  const phases=get5Cs(tier);
+  const LW=180; // label column px — fixed
+
+  const ownWks = tw; // ruler scale based on template build only
+  const totalWks = globalMaxWks || ownWks;
+
+  // Convert weeks to percentage of total timeline
+  function pct(wks){ return (wks/totalWks*100).toFixed(4)+'%'; }
+  function pctLeft(startWk){ return (startWk/totalWks*100).toFixed(4)+'%'; }
+
+  function ruler(){
+    let o='';
+    for(let w=0;w<=totalWks;w+=4){
+      const pct = (w/totalWks*100).toFixed(4);
+      const transform = w===0 ? 'translateX(0)' : 'translateX(-50%)';
+      o+=`<span style="position:absolute;left:${pct}%;font-size:9px;color:var(--g300);transform:${transform};">W${w||1}</span>`;
+    }
+    return`<div style="position:relative;height:16px;width:100%;overflow:hidden;">${o}</div>`;
+  }
+
+  function lane(titleHtml, phaseDefs, resources, borderColor){
+    const totalPhWks = phaseDefs.reduce((s,p)=>s+p.wks,0);
+    // Scale phase weeks relative to total timeline
+    let hdrLeft=0;
+    const hdrBars=phaseDefs.map(p=>{
+      const wPct = (p.wks/totalWks*100).toFixed(4)+'%';
+      const lPct = (hdrLeft/totalWks*100).toFixed(4)+'%';
+      const html=`<div class="${p.hdrCls||p.cls}" style="position:absolute;left:${lPct};width:calc(${wPct} - 1px);height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 4px;">${p.lbl}</div>`;
+      hdrLeft+=p.wks; return html;
+    }).join('');
+
+    const rows=resources.map(r=>{
+      let barLeft=0;
+      const rbars=phaseDefs.map(p=>{
+        const wPct = (p.wks/totalWks*100).toFixed(4)+'%';
+        const lPct = (barLeft/totalWks*100).toFixed(4)+'%';
+        const hrs=r.ph[p.key]||0;
+        const html=hrs>0
+          ? `<div class="${p.cls}" style="position:absolute;left:${lPct};width:calc(${wPct} - 1px);top:2px;height:28px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 4px;" title="${p.lbl}: ${hrs}h">${hrs}h</div>`
+          : '';
+        barLeft+=p.wks; return html;
+      }).join('');
+      return`<div style="display:flex;align-items:center;margin-bottom:3px;">
+        <div style="width:${LW}px;flex-shrink:0;padding-right:10px;font-size:11px;font-weight:700;color:var(--kdeep);line-height:1.3;">${r.role}</div>
+        <div style="position:relative;height:32px;flex:1;border-radius:4px;">${rbars}</div>
+      </div>`;
+    }).join('');
+
+    return`<div style="background:var(--white);border:1.5px solid ${borderColor};border-radius:8px;padding:14px 16px 12px;margin-bottom:12px;">
+      <div style="margin-bottom:10px;">${titleHtml}</div>
+      <div style="display:flex;margin-bottom:4px;">
+        <div style="width:${LW}px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:flex-end;padding-bottom:2px;">Role</div>
+        <div style="position:relative;height:20px;flex:1;">${hdrBars}</div>
+      </div>
+      ${rows}
+    </div>`;
+  }
+
+  // Template lane
+  let c=0; const tplPh=phases.map(p=>{const r={...p,localStart:c};c+=p.wks;return r;});
+  const tplTitle=`<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+    <span style="font-size:11px;font-weight:900;color:var(--kdeep);text-transform:uppercase;letter-spacing:.8px;">Template Build — ${arch.entries[0].name}</span>
+    <span style="font-size:11px;color:var(--g400);">${TC[tier].name} · ${tw} weeks</span>
+  </div>`;
+  const ganttExcl = arch.excludedRoles||new Set();
+  let lanesHtml=lane(tplTitle,tplPh,TPL_RES[tier].filter(r=>!ganttExcl.has(r.role)),'var(--kdeep)');
+
+  // Rollout lanes
+  if(waves>0){
+    const rolPhaseDefs=[
+      {key:'cc', lbl:'Connect',  cls:'ph-rollout',hdrCls:'ph-rollout-hdr',wks:4},
+      {key:'cfg',lbl:'Configure',cls:'ph-rollout',hdrCls:'ph-rollout-hdr',wks:14},
+      {key:'tst',lbl:'Confirm',  cls:'ph-rollout',hdrCls:'ph-rollout-hdr',wks:3},
+    ];
+    const totalRolloutSites=arch.siteCount-1;
+    const waveLabels=[];
+    let sitesRemaining=totalRolloutSites;
+    for(let wi=0;wi<waves;wi++){
+      const sitesThisWave=Math.min(sitesRemaining,maxPerWave);
+      waveLabels.push(sitesThisWave);
+      sitesRemaining-=sitesThisWave;
+    }
+    const rolloutEntries=arch.entries.slice(1);
+    for(let wi=0;wi<waves;wi++){
+      const progWk=tw-ROLLOUT_OVERLAP+wi*RW;
+      const sitesThisWave=waveLabels[wi];
+      let waveLabel;
+      if(S.mode==='site'&&rolloutEntries.length>0){
+        const batchEntries=rolloutEntries.slice(wi*maxPerWave,(wi+1)*maxPerWave);
+        waveLabel=batchEntries.map(e=>e.name).join(', ');
+      } else {
+        waveLabel=`${sitesThisWave} site${sitesThisWave!==1?'s':''}`;
+      }
+      const wTitle=`<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:900;color:var(--kteal);text-transform:uppercase;letter-spacing:.8px;">Rollout Wave ${wi+1} — ${waveLabel}</span>
+        <span style="font-size:10px;color:var(--g300);">↑ Connect begins program week ${progWk+1} (aligned with start of Close) · ${RW} weeks</span>
+      </div>`;
+      lanesHtml+=lane(wTitle,rolPhaseDefs,ROL_RES.filter(r=>!ganttExcl.has(r.role)),'var(--kteal)');
+    }
+  }
+
+  return`<div class="gantt-wrap">
+    <div class="gantt-title">Resource Allocation</div>
+    <div class="gantt-legend">
+      <div class="gl-item"><div class="gl-swatch ph-commence"></div>Commence</div>
+      <div class="gl-item"><div class="gl-swatch ph-connect"></div>Connect</div>
+      <div class="gl-item"><div class="gl-swatch ph-configure"></div>Configure</div>
+      <div class="gl-item"><div class="gl-swatch ph-confirm"></div>Confirm</div>
+      <div class="gl-item"><div class="gl-swatch ph-close"></div>Close</div>
+      ${waves>0?'<div class="gl-item"><div class="gl-swatch ph-rollout"></div>Rollout Wave</div>':''}
+    </div>
+    <div style="padding-bottom:8px;">
+      <div style="margin-left:${LW}px;margin-bottom:8px;">${ruler()}</div>
+      ${lanesHtml}
+    </div>
+    ${waves>0?`<div style="font-size:11px;color:var(--g400);margin-top:4px;font-weight:300;line-height:1.6;">Each rollout wave Connect phase begins at the start of the prior engagement's Close phase (${ROLLOUT_OVERLAP}-week overlap). Wave capacity — Foundational: ${TC.F.maxRollout} · Intermediate: ${TC.I.maxRollout} · Advanced: ${TC.A.maxRollout} sites per wave.</div>`:''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// RESOURCE TABLE
+// ═══════════════════════════════════════
+function buildResTable(tier,waves,rolHperWave,tplH,maxPerWave,ai,excludedRoles){
+  const excldRoles = excludedRoles||new Set();
+  const all=[];
+  TPL_RES[tier].forEach(r=>{const rm=ROL_RES.find(x=>x.role===r.role);all.push({role:r.role,tpl:r.hrs,perWave:rm?rm.hrs:0});});
+  ROL_RES.filter(r=>!TPL_RES[tier].find(t=>t.role===r.role)).forEach(r=>all.push({role:r.role,tpl:0,perWave:r.hrs}));
+
+  const rows = all.filter(r=>r.tpl>0||r.perWave>0).map(r=>{
+    const excl = excldRoles.has(r.role);
+    const wH = excl ? 0 : r.perWave*waves;
+    const tot = excl ? 0 : r.tpl+wH;
+    const style = excl ? 'opacity:0.35;text-decoration:line-through;' : '';
+    const toggleStyle = `width:32px;height:18px;border-radius:9px;border:none;cursor:pointer;transition:background .2s;background:${excl?'var(--g200)':'var(--kteal)'};position:relative;flex-shrink:0;`;
+    const knobStyle = `position:absolute;top:2px;${excl?'left:2px':'right:2px'};width:14px;height:14px;border-radius:50%;background:#fff;transition:all .2s;`;
+    return`<tr>
+      <td style="display:flex;align-items:center;gap:8px;">
+        <button onclick="toggleRole(${ai},'${r.role}')" style="${toggleStyle}" title="${excl?'Click to include':'Click to exclude'}">
+          <span style="${knobStyle}"></span>
+        </button>
+        <span style="${style}">${r.role}</span>
+      </td>
+      <td class="num" style="${style}">${excl?'—':r.tpl||'—'}</td>
+      ${waves>0?`<td class="num" style="${style}">${excl?'—':r.perWave||'—'}</td><td class="num" style="${style}">${excl?'—':wH||'—'}</td>`:''}
+      <td class="num" style="${style}">${excl?'Excluded':tot}</td>
+    </tr>`;
+  }).join('');
+
+  const activeTplH = all.filter(r=>!excldRoles.has(r.role)).reduce((s,r)=>s+(r.tpl||0),0);
+  const activeRolH = all.filter(r=>!excldRoles.has(r.role)).reduce((s,r)=>s+(r.perWave||0),0);
+  const activeGrand = activeTplH + activeRolH*waves;
+
+  return`<table class="rtbl" style="margin-top:16px;table-layout:fixed;width:100%;">
+    <colgroup>
+      <col style="width:${waves>0?'42%':'55%'}">
+      <col style="width:${waves>0?'13%':'20%'}">
+      ${waves>0?'<col style="width:13%"><col style="width:13%">':''}
+      <col style="width:${waves>0?'13%':'25%'}">
+    </colgroup>
+    <thead><tr>
+      <th style="text-align:left;">Role</th>
+      <th class="num">Template Hrs</th>
+      ${waves>0?`<th class="num">Per Rollout Wave</th><th class="num">× ${waves} Wave${waves!==1?'s':''}</th>`:''}
+      <th class="num">Total</th>
+    </tr></thead>
+    <tbody>
+    ${rows}
+    </tbody>
+  </table>`;
+}
+
+function toggleRole(ai, role){
+  const scrollY = window.scrollY;
+  const arch = S.archetypes[ai];
+  if(!arch) return;
+  if(!arch.excludedRoles) arch.excludedRoles = new Set();
+  if(arch.excludedRoles.has(role)) arch.excludedRoles.delete(role);
+  else arch.excludedRoles.add(role);
+  genResults();
+  requestAnimationFrame(()=>window.scrollTo(0, scrollY));
+}
+
+// ═══════════════════════════════════════
+// EXCEL EXPORT (ExcelJS)
+// ═══════════════════════════════════════
+async function exportToExcel(){
+  if(!S.archetypes||!S.archetypes.length){alert('Please generate a plan first.');return;}
+  try{
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'Kinaxis PS Scoping Tool';
+    wb.created = new Date();
+
+    // ── COLOURS ────────────────────────────────────────────────
+    const C = {
+      kdeep:   '1A4146', kteal:  '287271', red:    'E30613',
+      ksky:    'C2F3FF', kskyDim:'E8FAFF', white:  'FFFFFF',
+      offWhite:'F5F7F7', g100:   'EEF0F0', g200:   'DDE0E0',
+      g400:    '919196', g500:   '6B6E72', g700:   '474749', g900:   '1A1A1C',
+      green:   '418F62', greenLt:'EDF7F1',
+      amber:   'C47A00', amberLt:'FEF7E6',
+      blue:    '248F8E', blueLt: 'E6F6F6',
+      redFaint:'FFF5F5',
+    };
+    const tierFg  = {F: C.green,   I: C.blue,   A: C.amber};
+    const tierBg  = {F: C.greenLt, I: C.blueLt, A: C.amberLt};
+    const tierName= {F:'Foundational', I:'Intermediate', A:'Advanced'};
+
+    function argb(h){ return 'FF'+h; }
+    function fill(h){ return { type:'pattern', pattern:'solid', fgColor:{ argb: argb(h) } }; }
+    function font(h, bold, sz){ return { name:'Calibri', size: sz||10, bold:!!bold, color:{ argb: argb(h) } }; }
+    function border(h){
+      const b = { style:'thin', color:{ argb: argb(h) } };
+      return { top:b, bottom:b, left:b, right:b };
+    }
+    function align(h, v, wrap){ return { horizontal:h||'left', vertical:v||'middle', wrapText:!!wrap }; }
+
+    function ap(cell, st){
+      if(!st) return;
+      if(st.font)      cell.font      = st.font;
+      if(st.fill)      cell.fill      = st.fill;
+      if(st.alignment) cell.alignment = st.alignment;
+      if(st.border)    cell.border    = st.border;
+    }
+
+    function sc(ws, rn, cn, val, st){
+      const c = ws.getCell(rn, cn);
+      c.value = val;
+      ap(c, st);
+      return c;
+    }
+
+    function fillRow(ws, rn, c1, c2, st){
+      for(let c = c1; c <= c2; c++){
+        const cell = ws.getCell(rn, c);
+        ap(cell, st);
+        if(!(st && st.font)) cell.font = font(C.g900, false, 10);
+      }
+    }
+
+    // Style presets
+    const P = {
+      titleLeft:  { font: font(C.ksky,   true,  14), fill: fill(C.kdeep),   alignment: align('left',  'middle') },
+      titleRight: { font: font(C.ksky,   false, 10), fill: fill(C.kdeep),   alignment: align('right', 'middle') },
+      titleBlank: { fill: fill(C.kdeep),  font: font(C.kdeep, false, 10) },
+      metaLbl:    { font: font(C.g500,   false,  9), fill: fill(C.offWhite),alignment: align('left',  'middle') },
+      metaVal:    { font: font(C.g900,   true,  10), fill: fill(C.offWhite),alignment: align('left',  'middle') },
+      metaBlank:  { fill: fill(C.offWhite), font: font(C.offWhite, false, 10) },
+      sectionHd:  { font: font(C.white,  true,  10), fill: fill(C.kteal),   alignment: align('left',  'middle') },
+      sectionBlank:{ fill: fill(C.kteal), font: font(C.kteal, false, 10) },
+      archHd:     { font: font(C.white,  true,  11), fill: fill(C.kdeep),   alignment: align('left',  'middle') },
+      archBlank:  { fill: fill(C.kdeep),  font: font(C.kdeep, false, 10) },
+      colHd:      { font: font(C.white,  true,   9), fill: fill(C.kdeep),   alignment: align('center','middle'), border: border(C.kdeep) },
+      colHdL:     { font: font(C.white,  true,   9), fill: fill(C.kdeep),   alignment: align('left',  'middle'), border: border(C.kdeep) },
+      dataLbl:    { font: font(C.g900,   false, 10), fill: fill(C.white),   alignment: align('left',  'middle'), border: border(C.g200) },
+      dataNum:    { font: font(C.g900,   false, 10), fill: fill(C.white),   alignment: align('right', 'middle'), border: border(C.g200) },
+      dataLblA:   { font: font(C.g900,   false, 10), fill: fill(C.g100),    alignment: align('left',  'middle'), border: border(C.g200) },
+      dataNumA:   { font: font(C.g900,   false, 10), fill: fill(C.g100),    alignment: align('right', 'middle'), border: border(C.g200) },
+      totLbl:     { font: font(C.kdeep,  true,  10), fill: fill(C.kskyDim), alignment: align('left',  'middle'), border: border(C.g200) },
+      totNum:     { font: font(C.red,    true,  10), fill: fill(C.kskyDim), alignment: align('right', 'middle'), border: border(C.g200) },
+      totBlank:   { fill: fill(C.kskyDim), font: font(C.kskyDim, false, 10), border: border(C.g200) },
+      adder:      { font: font(C.kteal,  false,  9), fill: fill(C.kskyDim), alignment: align('left',  'middle') },
+      adderBlank: { fill: fill(C.kskyDim), font: font(C.kskyDim, false, 10) },
+      grandHd:    { font: font(C.white,  true,  12), fill: fill(C.kdeep),   alignment: align('left',  'middle') },
+      grandBlank: { fill: fill(C.kdeep),  font: font(C.kdeep, false, 10) },
+      grandLbl:   { font: font(C.kdeep,  true,  10), fill: fill(C.g100),    alignment: align('left',  'middle'), border: border(C.g200) },
+      grandNum:   { font: font(C.kdeep,  true,  11), fill: fill(C.g100),    alignment: align('right', 'middle'), border: border(C.g200) },
+      grandTotal: { font: font(C.red,    true,  12), fill: fill(C.kskyDim), alignment: align('right', 'middle'), border: border(C.g200) },
+      grandTotLbl:{ font: font(C.kdeep,  true,  10), fill: fill(C.kskyDim), alignment: align('left',  'middle'), border: border(C.g200) },
+      note:       { font: font(C.g400,   false,  9), fill: fill(C.offWhite),alignment: align('left',  'middle', true) },
+      blank:      { fill: fill(C.white),  font: font(C.white, false, 10) },
+      spacer:     { fill: fill(C.offWhite), font: font(C.offWhite, false, 10) },
+    };
+
+    // ── SHEET 1: ESTIMATE SUMMARY ──────────────────────────────
+    const ws = wb.addWorksheet('Estimate Summary');
+    ws.columns = [
+      {width:34},{width:14},{width:16},{width:14},{width:14},{width:14},{width:14},{width:16}
+    ];
+
+    let rn = 1;
+
+    // Title bar
+    ws.getRow(rn).height = 30;
+    sc(ws, rn, 1, 'KINAXIS  ·  Enterprise Scheduling', P.titleLeft);
+    fillRow(ws, rn, 2, 6, P.titleBlank);
+    sc(ws, rn, 7, 'Professional Services Estimate', P.titleRight);
+    sc(ws, rn, 8, '', P.titleBlank);
+    ws.mergeCells(rn,1,rn,6); ws.mergeCells(rn,7,rn,8);
+    rn++;
+
+    // Meta
+    ws.getRow(rn).height = 6;
+    fillRow(ws, rn, 1, 8, P.spacer); rn++;
+
+    const metaRows = [
+      ['Customer / Project', S.proj.name||'—'],
+      ['Prepared By',        S.proj.by||'—'],
+      ['Date',               S.proj.date||'—'],
+      ['Opportunity Stage',  S.flow||'—'],
+      ['Input Mode',         S.mode||'—'],
+    ];
+    metaRows.forEach(([lbl,val])=>{
+      ws.getRow(rn).height = 18;
+      sc(ws, rn, 1, lbl, P.metaLbl);
+      sc(ws, rn, 2, val, P.metaVal);
+      fillRow(ws, rn, 3, 8, P.metaBlank);
+      ws.mergeCells(rn,2,rn,8);
+      rn++;
+    });
+
+    ws.getRow(rn).height = 10; fillRow(ws,rn,1,8,P.blank); rn++;
+
+    // ── Per-archetype sections ──
+    let grandTotal = 0;
+
+    for(let ai=0; ai<S.archetypes.length; ai++){
+      const arch  = S.archetypes[ai];
+      const tier  = arch.tier || 'F';
+      const tc    = TC[tier];
+      const adders= Array.isArray(arch.adders) ? arch.adders : [];
+      let aw=0; adders.forEach(x=>aw+=(AW[x]||0));
+      const tw    = (tc.weeks||23) + aw;
+      const siteCount   = arch.siteCount || 1;
+      const maxRollout  = tc.maxRollout  || 4;
+      const waves = calcArchWaves(arch);
+      const tplRes= TPL_RES[tier]||[];
+      const tplH  = tplRes.reduce((s,r)=>s+(r.hrs||0),0);
+      const rolHperWave = ROL_RES.reduce((s,r)=>s+(r.hrs||0),0);
+      const archTotal   = tplH + rolHperWave*waves;
+      grandTotal += archTotal;
+
+      // Archetype header
+      ws.getRow(rn).height = 22;
+      sc(ws, rn, 1, `ARCHETYPE ${ai+1}: ${(arch.name||'').toUpperCase()}`, P.archHd);
+      fillRow(ws, rn, 2, 5, P.archBlank);
+      sc(ws, rn, 6, tierName[tier], { font: font(tierFg[tier], true, 10), fill: fill(tierBg[tier]), alignment: align('center','middle'), border: border(C.g200) });
+      sc(ws, rn, 7, `${tw} wks`, { font: font(C.ksky, true, 9), fill: fill(C.kdeep), alignment: align('center','middle'), border: border(C.g200) });
+      sc(ws, rn, 8, `${waves} wave${waves!==1?'s':''}`, { font: font(C.ksky, true, 9), fill: fill(C.kdeep), alignment: align('center','middle'), border: border(C.g200) });
+      ws.mergeCells(rn,1,rn,5);
+      rn++;
+
+      // Sites row
+      ws.getRow(rn).height = 16;
+      const rolloutWks = waves > 0 ? (waves * (RW - ROLLOUT_OVERLAP) + ROLLOUT_OVERLAP) : 0;
+      const totalStreamWks = waves === 0 ? tw : (tw - ROLLOUT_OVERLAP) + waves * RW;
+      sc(ws, rn, 1, `Sites in scope: ${siteCount}  ·  Template: ${tw} weeks  ·  Rollout: ${waves} wave${waves!==1?'s':''} (${rolloutWks} wks)  ·  Total stream: ${totalStreamWks} weeks`, P.adder);
+      fillRow(ws, rn, 2, 8, P.adderBlank);
+      ws.mergeCells(rn,1,rn,8);
+      rn++;
+
+      if(adders.length){
+        ws.getRow(rn).height = 15;
+        sc(ws, rn, 1, 'Adders: '+adders.join(' + '), P.adder);
+        fillRow(ws, rn, 2, 8, P.adderBlank);
+        ws.mergeCells(rn,1,rn,8);
+        rn++;
+      }
+
+      // Column headers
+      ws.getRow(rn).height = 18;
+      const hasSites = arch.entries && arch.entries.length > 0;
+      sc(ws, rn, 1, 'Role', P.colHdL);
+      sc(ws, rn, 2, 'Template Hrs', P.colHd);
+      if(waves>0){
+        sc(ws, rn, 3, 'Per Wave', P.colHd);
+        sc(ws, rn, 4, `×${waves} Wave${waves!==1?'s':''}`, P.colHd);
+        sc(ws, rn, 5, 'Total Hrs', P.colHd);
+        fillRow(ws, rn, 6, 8, {fill:fill(C.kdeep), font:font(C.kdeep,false,10)});
+        ws.mergeCells(rn,6,rn,8);
+      } else {
+        sc(ws, rn, 3, 'Total Hrs', P.colHd);
+        fillRow(ws, rn, 4, 8, {fill:fill(C.kdeep), font:font(C.kdeep,false,10)});
+        ws.mergeCells(rn,4,rn,8);
+      }
+      rn++;
+
+      // Build role list
+      const allRoles=[];
+      tplRes.forEach(ro=>{
+        const rm=ROL_RES.find(x=>x.role===ro.role);
+        allRoles.push({role:ro.role, tpl:ro.hrs||0, perWave:rm?(rm.hrs||0):0});
+      });
+      ROL_RES.forEach(ro=>{
+        if(!tplRes.find(t=>t.role===ro.role))
+          allRoles.push({role:ro.role, tpl:0, perWave:ro.hrs||0});
+      });
+
+      let alt=false;
+      allRoles.forEach(ro=>{
+        if(ro.tpl===0&&ro.perWave===0) return;
+        const wH = ro.perWave*waves;
+        const rowTotal = ro.tpl + wH;
+        ws.getRow(rn).height = 17;
+        const lSt = alt ? P.dataLblA : P.dataLbl;
+        const nSt = alt ? P.dataNumA : P.dataNum;
+        sc(ws, rn, 1, ro.role, lSt);
+        sc(ws, rn, 2, ro.tpl||0, nSt);
+        if(waves>0){
+          sc(ws, rn, 3, ro.perWave||0, nSt);
+          sc(ws, rn, 4, wH||0, nSt);
+          sc(ws, rn, 5, rowTotal, nSt);
+          fillRow(ws, rn, 6, 8, {fill: fill(alt?C.g100:C.white), font: font(alt?C.g100:C.white,false,10)});
+          ws.mergeCells(rn,6,rn,8);
+        } else {
+          sc(ws, rn, 3, rowTotal, nSt);
+          fillRow(ws, rn, 4, 8, {fill: fill(alt?C.g100:C.white), font: font(alt?C.g100:C.white,false,10)});
+          ws.mergeCells(rn,4,rn,8);
+        }
+        alt=!alt; rn++;
+      });
+
+      // Total row
+      ws.getRow(rn).height = 18;
+      sc(ws, rn, 1, 'TOTAL', P.totLbl);
+      sc(ws, rn, 2, tplH, P.totBlank);
+      if(waves>0){
+        sc(ws, rn, 3, rolHperWave, P.totBlank);
+        sc(ws, rn, 4, rolHperWave*waves, P.totBlank);
+        sc(ws, rn, 5, archTotal, P.totNum);
+        fillRow(ws, rn, 6, 8, P.totBlank); ws.mergeCells(rn,6,rn,8);
+      } else {
+        sc(ws, rn, 3, archTotal, P.totNum);
+        fillRow(ws, rn, 4, 8, P.totBlank); ws.mergeCells(rn,4,rn,8);
+      }
+      rn++;
+
+      // Spacer
+      ws.getRow(rn).height = 8; fillRow(ws,rn,1,8,P.blank); rn++;
+    }
+
+    // ── PROGRAM TOTALS ──
+    ws.getRow(rn).height = 10; fillRow(ws,rn,1,8,P.blank); rn++;
+
+    ws.getRow(rn).height = 24;
+    sc(ws, rn, 1, 'PROGRAM TOTALS', P.grandHd);
+    fillRow(ws, rn, 2, 8, P.grandBlank); ws.mergeCells(rn,1,rn,8); rn++;
+
+    const totalSites = S.archetypes.reduce((s,a)=>s+(a.siteCount||1),0);
+    const summaryRows = [
+      ['Total Sites',      totalSites, false],
+      ['Total Archetypes', S.archetypes.length, false],
+      ['Total Hours',      grandTotal, true],
+    ];
+    summaryRows.forEach(([lbl,val,isTotal])=>{
+      ws.getRow(rn).height = 20;
+      sc(ws, rn, 1, lbl, isTotal ? P.grandTotLbl : P.grandLbl);
+      sc(ws, rn, 2, val, isTotal ? P.grandTotal  : P.grandNum);
+      fillRow(ws, rn, 3, 8, {fill: fill(isTotal?C.kskyDim:C.g100), font: font(isTotal?C.kskyDim:C.g100,false,10)});
+      ws.mergeCells(rn,3,rn,8);
+      rn++;
+    });
+
+    // Spacer + note
+    ws.getRow(rn).height = 8; fillRow(ws,rn,1,8,P.blank); rn++;
+    ws.getRow(rn).height = 40;
+    sc(ws, rn, 1, 'Scoping assumptions: The Connect phase of a rollout wave begins at the start of the prior Close phase. Wave capacity: Foundational=4, Intermediate=3, Advanced=2 sites per wave. Deviations from template require separate scoping. For planning purposes only, subject to SOW alignment.', P.note);
+    fillRow(ws, rn, 2, 8, P.spacer); ws.mergeCells(rn,1,rn,8); rn++;
+
+    // ── SESSION SHEET (hidden, for import) ────────────────────
+    const wsSession = wb.addWorksheet('_session');
+    wsSession.state = 'veryHidden';
+    wsSession.getCell('A1').value = serializeState();
+
+    // ── DOWNLOAD ──────────────────────────────────────────────
+    const buf  = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = 'ES_Estimate_'+(S.proj.name||'Project').replace(/[^a-zA-Z0-9]/g,'_')+'_'+(S.proj.date||new Date().toISOString().slice(0,10))+'.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+
+  } catch(err){
+    console.error('Export error:',err);
+    alert('Export error: '+err.message);
+  }
+}
+
+function q(s){return(s||'').replace(/'/g,"\\'")}
+
+
+// ═══════════════════════════════════════
+// BUDGETARY ESTIMATE
+// ═══════════════════════════════════════
+const BUD = { sites: 10, pctF: 25, pctI: 50, pctA: 25, rangePct: 15 };
+
+function showSec(id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function updateSidebarBud(step) {
+  document.getElementById('navStep').textContent = 'BUDGETARY ESTIMATE';
+  // Hide all the standard workflow nav steps — they don't apply in budgetary mode
+  for(let i=0;i<5;i++){
+    document.getElementById('nav'+i).style.display = 'none';
+  }
+  document.getElementById('sbMode').style.display = 'block';
+  document.getElementById('sbModeVal').textContent = 'Budgetary Estimate';
+}
+
+function goToBud() {
+  S.proj.name = document.getElementById('projName').value;
+  S.proj.by   = document.getElementById('prepBy').value;
+  S.proj.date = document.getElementById('projDate').value;
+  updateSidebarBud(1);
+  budUpdateDisplay();
+  showSec('stepBud');
+}
+
+function budStep(key, delta) {
+  if(key === 'sites') {
+    BUD.sites = Math.max(1, Math.min(200, BUD.sites + delta));
+    document.getElementById('budSitesVal').textContent = BUD.sites;
+    budUpdateDisplay();
+  }
+}
+
+function budSlider(tier, val) {
+  val = parseInt(val);
+  // Clamp and redistribute remaining % between the other two sliders proportionally
+  const others = ['F','I','A'].filter(t => t !== tier);
+  const remaining = 100 - val;
+  const currentOther = BUD['pct'+others[0]] + BUD['pct'+others[1]];
+  BUD['pct'+tier] = val;
+  if(currentOther === 0) {
+    BUD['pct'+others[0]] = Math.floor(remaining/2);
+    BUD['pct'+others[1]] = remaining - Math.floor(remaining/2);
+  } else {
+    const r0 = BUD['pct'+others[0]] / currentOther;
+    const r1 = BUD['pct'+others[1]] / currentOther;
+    BUD['pct'+others[0]] = Math.round(remaining * r0);
+    BUD['pct'+others[1]] = remaining - Math.round(remaining * r0);
+  }
+  // Enforce sum = 100 due to rounding
+  const total = BUD.pctF + BUD.pctI + BUD.pctA;
+  if(total !== 100) BUD['pct'+others[1]] += (100 - total);
+  // Update sliders
+  document.getElementById('sliderF').value = BUD.pctF;
+  document.getElementById('sliderI').value = BUD.pctI;
+  document.getElementById('sliderA').value = BUD.pctA;
+  budUpdateDisplay();
+}
+
+function budUpdateDisplay() {
+  const n = BUD.sites;
+  const sitesF = Math.round(n * BUD.pctF / 100);
+  const sitesI = Math.round(n * BUD.pctI / 100);
+  const sitesA = n - sitesF - sitesI;
+
+  document.getElementById('pctF').textContent = BUD.pctF + '%';
+  document.getElementById('pctI').textContent = BUD.pctI + '%';
+  document.getElementById('pctA').textContent = BUD.pctA + '%';
+  document.getElementById('sitesF').textContent = sitesF + ' site' + (sitesF!==1?'s':'');
+  document.getElementById('sitesI').textContent = sitesI + ' site' + (sitesI!==1?'s':'');
+  document.getElementById('sitesA').textContent = sitesA + ' site' + (sitesA!==1?'s':'');
+
+  document.getElementById('budSegF').style.width = BUD.pctF + '%';
+  document.getElementById('budSegI').style.width = BUD.pctI + '%';
+  document.getElementById('budSegA').style.width = BUD.pctA + '%';
+
+  const total = BUD.pctF + BUD.pctI + BUD.pctA;
+  const note = document.getElementById('budTotalNote');
+  const status = document.getElementById('budMixStatus');
+  if(total === 100) {
+    note.textContent = 'Total: 100% ✓';
+    note.style.color = 'var(--green)';
+    status.textContent = '✓ 100%';
+    status.style.color = 'var(--green)';
+    document.getElementById('budGenBtn').disabled = false;
+  } else {
+    note.textContent = 'Total: ' + total + '% — must equal 100%';
+    note.style.color = 'var(--kred)';
+    status.textContent = total + '%';
+    status.style.color = 'var(--kred)';
+    document.getElementById('budGenBtn').disabled = true;
+  }
+}
+
+// Wave packing — greedy with rules:
+// Max 2A per wave; if 2A → max 1I; if 1A → max 2I; max 3I (only if 0A); max 4 total
+function budCalcWaves(nF, nI, nA) {
+  let remF = nF, remI = nI, remA = nA;
+  const waves = [];
+  let safetyCounter = 0;
+  while((remF + remI + remA) > 0 && safetyCounter++ < 200) {
+    let wA=0, wI=0, wF=0;
+    // Place advanced first (most constrained)
+    wA = Math.min(remA, 2);
+    // Place intermediate based on advanced count
+    const maxI = wA >= 2 ? 1 : wA === 1 ? 2 : 3;
+    wI = Math.min(remI, maxI);
+    // Fill remaining slots with foundational
+    const maxF = 4 - wA - wI;
+    wF = Math.min(remF, maxF);
+    if(wA+wI+wF === 0) break; // safety
+    waves.push({A:wA, I:wI, F:wF});
+    remA -= wA; remI -= wI; remF -= wF;
+  }
+  return waves;
+}
+
+function budCalcHours() {
+  const n = BUD.sites;
+  const sitesF = Math.round(n * BUD.pctF / 100);
+  const sitesI = Math.round(n * BUD.pctI / 100);
+  const sitesA = n - sitesF - sitesI;
+
+  // Hours per tier: 1 pilot template per tier present + rollout waves
+  const tplHours = t => TPL_RES[t].reduce((s,r)=>s+r.hrs,0);
+  const rolHours  = ROL_RES.reduce((s,r)=>s+r.hrs,0);
+
+  let pilotHrs = 0;
+  if(sitesF > 0) pilotHrs += tplHours('F');
+  if(sitesI > 0) pilotHrs += tplHours('I');
+  if(sitesA > 0) pilotHrs += tplHours('A');
+
+  // Rollout: remaining sites after 1 pilot per tier
+  const rolF = Math.max(0, sitesF - (sitesF>0?1:0));
+  const rolI = Math.max(0, sitesI - (sitesI>0?1:0));
+  const rolA = Math.max(0, sitesA - (sitesA>0?1:0));
+  const waves = budCalcWaves(rolF, rolI, rolA);
+  const rolloutHrs = waves.length * rolHours;
+  const totalHrs = pilotHrs + rolloutHrs;
+
+  // Template weeks run sequentially F→I→A
+  const templateWeeks =
+    (sitesF > 0 ? TC.F.weeks : 0) +
+    (sitesI > 0 ? TC.I.weeks : 0) +
+    (sitesA > 0 ? TC.A.weeks : 0);
+  // Rollout: waves run sequentially, each RW weeks, with ROLLOUT_OVERLAP overlap
+  const rolloutWeeks = waves.length > 0 ? (waves.length * (RW - ROLLOUT_OVERLAP) + ROLLOUT_OVERLAP) : 0;
+  const totalWeeks = templateWeeks + rolloutWeeks;
+
+  return { pilotHrs, rolloutHrs, totalHrs, waves, templateWeeks, rolloutWeeks, totalWeeks, sitesF, sitesI, sitesA, rolF, rolI, rolA };
+}
+
+function genBudgetaryEstimate() {
+  saveSession(true); // save on Generate Estimate
+  const h = budCalcHours();
+  const rng = BUD.rangePct / 100;
+  const lo = Math.round(h.totalHrs * (1 - rng));
+  const hi = Math.round(h.totalHrs * (1 + rng));
+  const n = BUD.sites;
+  const tiers = [];
+  if(h.sitesF>0) tiers.push(`<span class="be-mix-pill" style="background:var(--green-lt);color:var(--green);">${h.sitesF} Foundational (${BUD.pctF}%)</span>`);
+  if(h.sitesI>0) tiers.push(`<span class="be-mix-pill" style="background:var(--blue-lt);color:var(--blue);">${h.sitesI} Intermediate (${BUD.pctI}%)</span>`);
+  if(h.sitesA>0) tiers.push(`<span class="be-mix-pill" style="background:var(--amber-lt);color:var(--amber);">${h.sitesA} Advanced (${BUD.pctA}%)</span>`);
+
+  document.getElementById('budResultSub').innerHTML =
+    `${n} total sites &nbsp;·&nbsp; ${tiers.join('')}`;
+
+  // Gantt — sequential templates F→I→A, then segmented rollout waves
+  const sidebarEl2 = document.querySelector('.sidebar');
+  const sidebarW2 = sidebarEl2 ? sidebarEl2.offsetWidth : 200;
+  const TRACK = Math.min(window.innerWidth - sidebarW2 - 32, 1100) - 72 - 170 - 40;
+
+  // Sequential template durations — F first, then I, then A
+  const tplDefs = [
+    { tier:'F', label:'Foundational Template', color:'var(--green)', sites:h.sitesF, weeks:TC.F.weeks },
+    { tier:'I', label:'Intermediate Template', color:'var(--blue)',  sites:h.sitesI, weeks:TC.I.weeks },
+    { tier:'A', label:'Advanced Template',     color:'var(--amber)', sites:h.sitesA, weeks:TC.A.weeks },
+  ].filter(t => t.sites > 0);
+
+  // Calculate sequential start weeks for each template
+  let tplCursor = 0;
+  const tplSchedule = tplDefs.map(t => {
+    const start = tplCursor;
+    tplCursor += t.weeks;
+    return { ...t, start };
+  });
+  const templatesTotalWeeks = tplCursor;
+
+  // Rollout starts after all templates finish
+  const rolloutStart = templatesTotalWeeks;
+  const totalW = rolloutStart + h.rolloutWeeks || 1;
+  const tickInterval = totalW <= 12 ? 2 : totalW <= 30 ? 4 : totalW <= 60 ? 8 : 12;
+  function bePct(wks){ return (wks/totalW*100).toFixed(4)+'%'; }
+
+  let ruler = `<div class="be-ruler" style="flex:1;">`;
+  for(let w=0; w<=totalW; w+=tickInterval){
+    const transform = w===0 ? 'translateX(0)' : 'translateX(-50%)';
+    ruler += `<span class="be-ruler-tick" style="left:${bePct(w)};transform:${transform};">W${w||1}</span>`;
+  }
+  ruler += '</div>';
+
+  // Template rows — sequential, each starts after the previous
+  let ganttRows = tplSchedule.map(t => `
+    <div class="be-wave-row">
+      <div class="be-wave-label">${t.label}</div>
+      <div class="be-wave-track" style="flex:1;position:relative;">
+        <div class="be-wave-bar" style="left:${bePct(t.start)};width:${bePct(t.weeks)};background:${t.color};color:#fff;">
+          ${t.weeks} wks
+        </div>
+      </div>
+    </div>`).join('');
+
+  // Rollout waves — segmented bars (A|I|F left to right, proportional to site count)
+  let waveStart = rolloutStart;
+  h.waves.forEach((w, wi) => {
+    const total = w.A + w.I + w.F;
+    const segments = [];
+    if(w.A > 0) segments.push({ color:'var(--amber)', sites:w.A, label:`${w.A}A` });
+    if(w.I > 0) segments.push({ color:'var(--blue)',  sites:w.I, label:`${w.I}I` });
+    if(w.F > 0) segments.push({ color:'var(--green)', sites:w.F, label:`${w.F}F` });
+
+    const segHtml = segments.map((seg, si) => {
+      const segPct = (seg.sites / total * 100).toFixed(4) + '%';
+      const radius = si === 0 ? '3px 0 0 3px' : si === segments.length-1 ? '0 3px 3px 0' : '0';
+      return `<div style="width:${segPct};height:22px;background:${seg.color};border-radius:${radius};display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;padding:0 4px;flex-shrink:0;">${seg.label}</div>`;
+    }).join('');
+
+    ganttRows += `
+      <div class="be-wave-row">
+        <div class="be-wave-label">Wave ${wi+1}</div>
+        <div class="be-wave-track" style="flex:1;position:relative;">
+          <div style="position:absolute;left:${bePct(waveStart)};width:${bePct(RW)};top:2px;display:flex;height:22px;border-radius:3px;overflow:hidden;" title="Wave ${wi+1}: ${segments.map(s=>s.label).join(' + ')} (${total} sites)">
+            ${segHtml}
+          </div>
+        </div>
+      </div>`;
+    waveStart += (RW - ROLLOUT_OVERLAP);
+  });
+
+  // Legend
+  const legend = `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
+      ${h.sitesF>0?'<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g500);"><div style="width:22px;height:12px;border-radius:3px;background:var(--green);"></div>Foundational</div>':''}
+      ${h.sitesI>0?'<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g500);"><div style="width:22px;height:12px;border-radius:3px;background:var(--blue);"></div>Intermediate</div>':''}
+      ${h.sitesA>0?'<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g500);"><div style="width:22px;height:12px;border-radius:3px;background:var(--amber);"></div>Advanced</div>':''}
+    </div>`;
+
+  document.getElementById('budResultContent').innerHTML = `
+    <div style="display:flex;gap:12px;align-items:stretch;margin-bottom:16px;">
+      <div class="be-range-card" style="flex:1;margin-bottom:0;">
+        <div class="be-range-title">Indicative Hour Range (±${BUD.rangePct}%)</div>
+        <div class="be-range-grid">
+          <div class="be-range-item"><div class="be-range-lbl">Low Estimate</div><div class="be-range-val">${lo.toLocaleString()}</div><div class="be-range-sub">hours</div></div>
+          <div class="be-range-item"><div class="be-range-lbl">Midpoint</div><div class="be-range-val">${h.totalHrs.toLocaleString()}</div><div class="be-range-sub">hours</div></div>
+          <div class="be-range-item"><div class="be-range-lbl">High Estimate</div><div class="be-range-val">${hi.toLocaleString()}</div><div class="be-range-sub">hours</div></div>
+          <div class="be-range-item"><div class="be-range-lbl">Indicative Duration</div><div class="be-range-val">${h.totalWeeks}</div><div class="be-range-sub">weeks total</div></div>
+        </div>
+      </div>
+      <div style="background:#FEF9EC;border:1.5px solid #F4C842;border-radius:var(--rlg);padding:16px 20px;display:flex;flex-direction:column;justify-content:center;min-width:130px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7c5c00;margin-bottom:6px;">Range</div>
+        <div style="display:flex;align-items:baseline;gap:3px;">
+          <input type="number" min="1" max="50" value="${BUD.rangePct}" id="budRangeInput"
+            style="width:58px;font-size:28px;font-weight:900;color:#7c3800;background:transparent;border:none;border-bottom:1.5px solid #F4C842;font-family:'Lato',sans-serif;outline:none;padding:0;"
+            oninput="BUD.rangePct=Math.max(1,Math.min(50,+this.value||15));genBudgetaryEstimate();">
+          <span style="font-size:16px;font-weight:700;color:#c47a00;">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">Indicative Timeline</div>
+      ${legend}
+      <div style="overflow-x:hidden;">
+        ${ruler}
+        ${ganttRows}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">Hour Breakdown</div>
+      <table class="rtbl">
+        <thead><tr>
+          <th>Component</th>
+          <th class="num">Hours</th>
+          <th class="num">Low (−${BUD.rangePct}%)</th>
+          <th class="num">High (+${BUD.rangePct}%)</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Template Builds</td>
+              <td class="num">${h.pilotHrs.toLocaleString()}</td>
+              <td class="num">${Math.round(h.pilotHrs*(1-rng)).toLocaleString()}</td>
+              <td class="num">${Math.round(h.pilotHrs*(1+rng)).toLocaleString()}</td></tr>
+          ${h.waves.length>0?`<tr><td>Rollout (${h.waves.length} wave${h.waves.length!==1?'s':''})</td>
+              <td class="num">${h.rolloutHrs.toLocaleString()}</td>
+              <td class="num">${Math.round(h.rolloutHrs*(1-rng)).toLocaleString()}</td>
+              <td class="num">${Math.round(h.rolloutHrs*(1+rng)).toLocaleString()}</td></tr>`:''}
+        </tbody>
+        <tfoot><tr class="tot-row">
+          <td>Total</td>
+          <td class="num">${h.totalHrs.toLocaleString()}</td>
+          <td class="num">${lo.toLocaleString()}</td>
+          <td class="num">${hi.toLocaleString()}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">Role Breakdown</div>
+      <p style="font-size:11px;color:var(--g400);margin-bottom:12px;font-weight:300;">Template hours shown per tier present; rollout hours are per wave × wave count. Use these for cost modelling.</p>
+      ${(()=>{
+        // Build combined role table across all tiers present
+        const tiersPresent = [
+          ...(h.sitesF>0?['F']:[]),
+          ...(h.sitesI>0?['I']:[]),
+          ...(h.sitesA>0?['A']:[]),
+        ];
+        // Collect all roles across all tiers
+        const roleSet = new Map();
+        tiersPresent.forEach(t => {
+          TPL_RES[t].forEach(r => {
+            if(!roleSet.has(r.role)) roleSet.set(r.role,{role:r.role,reg:r.reg,tpl:{},perWave:0});
+            roleSet.get(r.role).tpl[t] = r.hrs;
+          });
+        });
+        ROL_RES.forEach(r => {
+          if(!roleSet.has(r.role)) roleSet.set(r.role,{role:r.role,reg:r.reg,tpl:{},perWave:0});
+          roleSet.get(r.role).perWave = r.hrs;
+        });
+        const rolHours = ROL_RES.reduce((s,r)=>s+r.hrs,0);
+        const tplColHdrs = tiersPresent.map(t=>`<th class="num">Template (${TC[t].name.slice(0,1)})</th>`).join('');
+        const hasRollout = h.waves.length > 0;
+        // Shared grey-italic style for the reference "per wave" column
+        const refTh = `text-align:right;font-style:italic;font-weight:400;color:var(--g400);`;
+        const refTd = `text-align:right;font-style:italic;color:var(--g400);`;
+        let rows = '';
+        let tplTotals = {}; tiersPresent.forEach(t=>tplTotals[t]=0);
+        let rolTot = 0;
+        roleSet.forEach(r => {
+          const tplCols = tiersPresent.map(t=>`<td class="num">${r.tpl[t]||'—'}</td>`).join('');
+          const waveHrs = r.perWave > 0 ? r.perWave : 0;
+          const waveTot = waveHrs * h.waves.length;
+          rolTot += waveTot;
+          tiersPresent.forEach(t=>{ tplTotals[t]+=(r.tpl[t]||0); });
+          rows += `<tr>
+            <td>${r.role}</td>
+            ${tplCols}
+            ${hasRollout?`<td style="${refTd}">${waveHrs>0?waveHrs.toLocaleString():'—'}</td><td class="num">${waveTot>0?waveTot.toLocaleString():'—'}</td>`:''}
+          </tr>`;
+        });
+        const totTplCols = tiersPresent.map(t=>`<td class="num">${tplTotals[t].toLocaleString()}</td>`).join('');
+        return `<table class="rtbl" style="table-layout:fixed;width:100%;">
+          <thead><tr>
+            <th style="text-align:left;">Role</th>
+            ${tplColHdrs}
+            ${hasRollout?`<th style="${refTh}">(Per Wave)</th><th class="num">× ${h.waves.length} Wave${h.waves.length!==1?'s':''} Total</th>`:''}
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr class="tot-row">
+            <td>Total</td>
+            ${totTplCols}
+            ${hasRollout?`<td style="${refTd}font-weight:700;">${rolHours.toLocaleString()}</td><td class="num">${rolTot.toLocaleString()}</td>`:''}
+          </tr></tfoot>
+        </table>`;
+      })()}
+    </div>
+
+    <div class="disclaimer" style="font-weight:400;color:var(--g500);">
+      <strong>Budgetary Estimate — Pre-Discovery.</strong>
+      This estimate is based on site count and an assumed tier mix only. Requirements have not been assessed.
+      Actual hours may vary once discovery is complete and archetypes are formally scoped.
+      Range reflects an adjustable variance. Not for external distribution without qualification.
+    </div>
+  `;
+
+  updateSidebarBud(2);
+  showSec('stepBudResults');
+  document.querySelector('.main').classList.add('results-active');
+}
+
+async function exportBudgetaryExcel() {
+  const h = budCalcHours();
+  const rng = BUD.rangePct / 100;
+  const lo = Math.round(h.totalHrs * (1 - rng));
+  const hi = Math.round(h.totalHrs * (1 + rng));
+  const pName = S.proj.name || 'Budgetary Estimate';
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'Kinaxis PS Scoping Tool';
+
+  const C = {
+    kdeep:'1A4146', kteal:'287271', red:'E30613', ksky:'C2F3FF', kskyDim:'E8FAFF',
+    white:'FFFFFF', offWhite:'F5F7F7', g100:'EEF0F0', g200:'DDE0E0',
+    g400:'919196', g500:'6B6E72', g900:'1A1A1C',
+    green:'418F62', greenLt:'EDF7F1', blue:'248F8E', blueLt:'E6F6F6',
+    amber:'C47A00', amberLt:'FEF7E6',
+  };
+  function argb(h){ return 'FF'+h; }
+  function fill(h){ return {type:'pattern',pattern:'solid',fgColor:{argb:argb(h)}}; }
+  function font(h,bold,sz){ return {name:'Calibri',size:sz||10,bold:!!bold,color:{argb:argb(h)}}; }
+  function border(h){ const b={style:'thin',color:{argb:argb(h)}}; return {top:b,bottom:b,left:b,right:b}; }
+  function align(h,v,wrap){ return {horizontal:h||'left',vertical:v||'middle',wrapText:!!wrap}; }
+  function ap(cell,st){ if(!st)return; if(st.font)cell.font=st.font; if(st.fill)cell.fill=st.fill; if(st.alignment)cell.alignment=st.alignment; if(st.border)cell.border=st.border; }
+  function sc(ws,rn,cn,val,st){ const c=ws.getCell(rn,cn); c.value=val; ap(c,st); return c; }
+  function fr(ws,rn,c1,c2,st){ for(let c=c1;c<=c2;c++){const cell=ws.getCell(rn,c);ap(cell,st);if(!(st&&st.font))cell.font=font(C.g900,false,10);} }
+
+  const P = {
+    titleL: {font:font(C.ksky,true,14),fill:fill(C.kdeep),alignment:align('left','middle')},
+    titleR: {font:font(C.ksky,false,10),fill:fill(C.kdeep),alignment:align('right','middle')},
+    tBlank: {fill:fill(C.kdeep),font:font(C.kdeep,false,10)},
+    metaL:  {font:font(C.g500,false,9),fill:fill(C.offWhite),alignment:align('left','middle')},
+    metaV:  {font:font(C.g900,true,10),fill:fill(C.offWhite),alignment:align('left','middle')},
+    mBlank: {fill:fill(C.offWhite),font:font(C.offWhite,false,10)},
+    sHd:    {font:font(C.white,true,10),fill:fill(C.kteal),alignment:align('left','middle')},
+    sBlank: {fill:fill(C.kteal),font:font(C.kteal,false,10)},
+    colHd:  {font:font(C.white,true,9),fill:fill(C.kdeep),alignment:align('center','middle'),border:border(C.kdeep)},
+    colHdL: {font:font(C.white,true,9),fill:fill(C.kdeep),alignment:align('left','middle'),border:border(C.kdeep)},
+    dL:     {font:font(C.g900,false,10),fill:fill(C.white),alignment:align('left','middle'),border:border(C.g200)},
+    dN:     {font:font(C.g900,false,10),fill:fill(C.white),alignment:align('right','middle'),border:border(C.g200)},
+    dLA:    {font:font(C.g900,false,10),fill:fill(C.g100),alignment:align('left','middle'),border:border(C.g200)},
+    dNA:    {font:font(C.g900,false,10),fill:fill(C.g100),alignment:align('right','middle'),border:border(C.g200)},
+    totL:   {font:font(C.kdeep,true,10),fill:fill(C.kskyDim),alignment:align('left','middle'),border:border(C.g200)},
+    totN:   {font:font(C.red,true,10),fill:fill(C.kskyDim),alignment:align('right','middle'),border:border(C.g200)},
+    tBlk2:  {fill:fill(C.kskyDim),font:font(C.kskyDim,false,10),border:border(C.g200)},
+    note:   {font:font(C.g400,false,9),fill:fill(C.offWhite),alignment:align('left','middle',true)},
+    blank:  {fill:fill(C.white),font:font(C.white,false,10)},
+    spacer: {fill:fill(C.offWhite),font:font(C.offWhite,false,10)},
+    hiLo:   {font:font(C.ksky,true,13),fill:fill(C.kdeep),alignment:align('center','middle')},
+    hiLoL:  {font:font(C.ksky,false,9),fill:fill(C.kdeep),alignment:align('center','middle')},
+  };
+
+  const ws = wb.addWorksheet('Budgetary Estimate');
+  ws.columns=[{width:28},{width:16},{width:16},{width:16},{width:14},{width:14}];
+
+  let rn=1;
+  ws.getRow(rn).height=30;
+  sc(ws,rn,1,'KINAXIS  ·  Enterprise Scheduling',P.titleL); fr(ws,rn,2,4,P.tBlank);
+  sc(ws,rn,5,'Budgetary Estimate',P.titleR); sc(ws,rn,6,'',P.tBlank);
+  ws.mergeCells(rn,1,rn,4); ws.mergeCells(rn,5,rn,6); rn++;
+
+  ws.getRow(rn).height=6; fr(ws,rn,1,6,P.spacer); rn++;
+
+  [['Customer / Project', pName],['Prepared By',S.proj.by||'—'],['Date',S.proj.date||'—'],
+   ['Total Sites',BUD.sites],['Tier Mix',`${BUD.pctF}% F  /  ${BUD.pctI}% I  /  ${BUD.pctA}% A`]
+  ].forEach(([l,v])=>{
+    ws.getRow(rn).height=18;
+    sc(ws,rn,1,l,P.metaL); sc(ws,rn,2,v,P.metaV); fr(ws,rn,3,6,P.mBlank);
+    ws.mergeCells(rn,2,rn,6); rn++;
+  });
+
+  ws.getRow(rn).height=10; fr(ws,rn,1,6,P.blank); rn++;
+
+  // Hour range banner
+  ws.getRow(rn).height=20; sc(ws,rn,1,`INDICATIVE HOUR RANGE (±${BUD.rangePct}%)`,P.sHd); fr(ws,rn,2,6,P.sBlank); ws.mergeCells(rn,1,rn,6); rn++;
+  ws.getRow(rn).height=14; sc(ws,rn,1,'Low Estimate',P.hiLoL); sc(ws,rn,2,'Midpoint',P.hiLoL); sc(ws,rn,3,'High Estimate',P.hiLoL); sc(ws,rn,4,'Duration',P.hiLoL); fr(ws,rn,5,6,P.tBlank); ws.mergeCells(rn,4,rn,6); rn++;
+  ws.getRow(rn).height=28; sc(ws,rn,1,lo,P.hiLo); sc(ws,rn,2,h.totalHrs,P.hiLo); sc(ws,rn,3,hi,P.hiLo);
+  sc(ws,rn,4,`${h.totalWeeks} weeks`,P.hiLo); fr(ws,rn,5,6,P.tBlank); ws.mergeCells(rn,4,rn,6); rn++;
+  ws.getRow(rn).height=14; sc(ws,rn,1,'hours',P.hiLoL); sc(ws,rn,2,'hours',P.hiLoL); sc(ws,rn,3,'hours',P.hiLoL);
+  sc(ws,rn,4,`templates + ${h.waves.length} rollout wave${h.waves.length!==1?'s':''}`,P.hiLoL); fr(ws,rn,5,6,P.tBlank); ws.mergeCells(rn,4,rn,6); rn++;
+
+  ws.getRow(rn).height=10; fr(ws,rn,1,6,P.blank); rn++;
+
+  // Hour breakdown table
+  ws.getRow(rn).height=20; sc(ws,rn,1,'HOUR BREAKDOWN',P.sHd); fr(ws,rn,2,6,P.sBlank); ws.mergeCells(rn,1,rn,6); rn++;
+  ws.getRow(rn).height=18;
+  sc(ws,rn,1,'Component',P.colHdL); sc(ws,rn,2,'Midpoint Hours',P.colHd); sc(ws,rn,3,`Low (−${BUD.rangePct}%)`,P.colHd); sc(ws,rn,4,`High (+${BUD.rangePct}%)`,P.colHd); fr(ws,rn,5,6,{fill:fill(C.kdeep),font:font(C.kdeep,false,10)}); ws.mergeCells(rn,5,rn,6); rn++;
+
+  const bRows=[['Template Builds (concurrent)',h.pilotHrs]];
+  if(h.waves.length>0) bRows.push(['Rollout ('+h.waves.length+' wave'+(h.waves.length!==1?'s':'')+')',h.rolloutHrs]);
+  bRows.forEach(([l,v],i)=>{
+    ws.getRow(rn).height=18;
+    const alt=i%2===1;
+    sc(ws,rn,1,l,alt?P.dLA:P.dL); sc(ws,rn,2,v,alt?P.dNA:P.dN);
+    sc(ws,rn,3,Math.round(v*(1-rng)),alt?P.dNA:P.dN); sc(ws,rn,4,Math.round(v*(1+rng)),alt?P.dNA:P.dN);
+    fr(ws,rn,5,6,{fill:fill(alt?C.g100:C.white),font:font(alt?C.g100:C.white,false,10)}); ws.mergeCells(rn,5,rn,6); rn++;
+  });
+  ws.getRow(rn).height=18;
+  sc(ws,rn,1,'TOTAL',P.totL); sc(ws,rn,2,h.totalHrs,P.totN); sc(ws,rn,3,lo,P.totN); sc(ws,rn,4,hi,P.totN); fr(ws,rn,5,6,P.tBlk2); ws.mergeCells(rn,5,rn,6); rn++;
+
+  ws.getRow(rn).height=10; fr(ws,rn,1,6,P.blank); rn++;
+
+  // Site breakdown
+  ws.getRow(rn).height=20; sc(ws,rn,1,'SITE MIX BREAKDOWN',P.sHd); fr(ws,rn,2,6,P.sBlank); ws.mergeCells(rn,1,rn,6); rn++;
+  ws.getRow(rn).height=18; sc(ws,rn,1,'Tier',P.colHdL); sc(ws,rn,2,'Sites',P.colHd); sc(ws,rn,3,'Mix %',P.colHd); sc(ws,rn,4,'Pilot Template',P.colHd); fr(ws,rn,5,6,{fill:fill(C.kdeep),font:font(C.kdeep,false,10)}); ws.mergeCells(rn,5,rn,6); rn++;
+
+  [['Foundational',h.sitesF,BUD.pctF,h.sitesF>0?'1 template ('+TC.F.weeks+' wks)':'—'],
+   ['Intermediate',h.sitesI,BUD.pctI,h.sitesI>0?'1 template ('+TC.I.weeks+' wks)':'—'],
+   ['Advanced',    h.sitesA,BUD.pctA,h.sitesA>0?'1 template ('+TC.A.weeks+' wks)':'—'],
+  ].forEach(([tier,sites,pct,tpl],i)=>{
+    ws.getRow(rn).height=18;
+    const alt=i%2===1;
+    sc(ws,rn,1,tier,alt?P.dLA:P.dL); sc(ws,rn,2,sites,alt?P.dNA:P.dN);
+    sc(ws,rn,3,pct+'%',alt?P.dNA:P.dN); sc(ws,rn,4,tpl,alt?P.dLA:P.dL);
+    fr(ws,rn,5,6,{fill:fill(alt?C.g100:C.white),font:font(alt?C.g100:C.white,false,10)}); ws.mergeCells(rn,5,rn,6); rn++;
+  });
+
+  // Wave summary
+  if(h.waves.length > 0) {
+    ws.getRow(rn).height=10; fr(ws,rn,1,6,P.blank); rn++;
+    ws.getRow(rn).height=20; sc(ws,rn,1,'ROLLOUT WAVE SUMMARY',P.sHd); fr(ws,rn,2,6,P.sBlank); ws.mergeCells(rn,1,rn,6); rn++;
+    ws.getRow(rn).height=18; sc(ws,rn,1,'Wave',P.colHdL); sc(ws,rn,2,'Advanced',P.colHd); sc(ws,rn,3,'Intermediate',P.colHd); sc(ws,rn,4,'Foundational',P.colHd); sc(ws,rn,5,'Total Sites',P.colHd); fr(ws,rn,6,6,{fill:fill(C.kdeep),font:font(C.kdeep,false,10)}); rn++;
+    h.waves.forEach((w,wi)=>{
+      ws.getRow(rn).height=18;
+      const alt=wi%2===1;
+      sc(ws,rn,1,'Wave '+(wi+1),alt?P.dLA:P.dL); sc(ws,rn,2,w.A||0,alt?P.dNA:P.dN);
+      sc(ws,rn,3,w.I||0,alt?P.dNA:P.dN); sc(ws,rn,4,w.F||0,alt?P.dNA:P.dN);
+      sc(ws,rn,5,w.A+w.I+w.F,alt?P.dNA:P.dN); fr(ws,rn,6,6,{fill:fill(alt?C.g100:C.white),font:font(alt?C.g100:C.white,false,10)}); rn++;
+    });
+  }
+
+  ws.getRow(rn).height=10; fr(ws,rn,1,6,P.blank); rn++;
+  ws.getRow(rn).height=40;
+  sc(ws,rn,1,`Budgetary Estimate — Pre-Discovery. This estimate is based on site count and an assumed tier mix only. Requirements have not been assessed. Actual hours may vary once discovery is complete and archetypes are formally scoped. Range reflects an adjustable variance. For internal use by Kinaxis Professional Services. Not for external distribution.`,P.note);
+  fr(ws,rn,2,6,P.spacer); ws.mergeCells(rn,1,rn,6); rn++;
+
+  // ── SHEET 2: ROLE DETAIL ──────────────────────────────────────
+  const tiersPresent = [
+    ...(h.sitesF>0?['F']:[]),
+    ...(h.sitesI>0?['I']:[]),
+    ...(h.sitesA>0?['A']:[]),
+  ];
+  const ws2 = wb.addWorksheet('Role Detail');
+  // Columns: Role, Region, tpl cols (1 per tier), per-wave, total-waves
+  const hasRollout2 = h.waves.length > 0;
+  const ncols = 2 + tiersPresent.length + (hasRollout2 ? 2 : 0);
+  ws2.columns = [{width:32},{width:12},...tiersPresent.map(()=>({width:18})),...(hasRollout2?[{width:18},{width:18}]:[])];
+
+  let rn2=1;
+  // Title
+  ws2.getRow(rn2).height=30;
+  sc(ws2,rn2,1,'KINAXIS  ·  Enterprise Scheduling',P.titleL); fr(ws2,rn2,2,ncols,P.tBlank);
+  sc(ws2,rn2,ncols,'Role Detail',P.titleR);
+  ws2.mergeCells(rn2,1,rn2,ncols-1); rn2++;
+  ws2.getRow(rn2).height=6; fr(ws2,rn2,1,ncols,P.spacer); rn2++;
+
+  // Section header
+  ws2.getRow(rn2).height=20;
+  sc(ws2,rn2,1,'ROLE HOURS BY TIER',P.sHd); fr(ws2,rn2,2,ncols,P.sBlank); ws2.mergeCells(rn2,1,rn2,ncols); rn2++;
+  ws2.getRow(rn2).height=16;
+  sc(ws2,rn2,1,'Note: Template hours shown per tier. Rollout hours are per-wave × wave count. Use for cost modelling.',{font:font(C.g400,false,9),fill:fill(C.offWhite),alignment:align('left','middle')});
+  fr(ws2,rn2,2,ncols,{fill:fill(C.offWhite)}); ws2.mergeCells(rn2,1,rn2,ncols); rn2++;
+
+  // Column headers
+  ws2.getRow(rn2).height=18;
+  sc(ws2,rn2,1,'Role',P.colHdL); sc(ws2,rn2,2,'Region',P.colHdL);
+  tiersPresent.forEach((t,ci)=>{ sc(ws2,rn2,3+ci,`Template Hrs (${TC[t].name})`,P.colHd); });
+  if(hasRollout2){
+    sc(ws2,rn2,3+tiersPresent.length,'Per Rollout Wave',P.colHd);
+    sc(ws2,rn2,4+tiersPresent.length,`× ${h.waves.length} Wave${h.waves.length!==1?'s':''}`,P.colHd);
+  }
+  rn2++;
+
+  // Role rows
+  const roleSet2 = new Map();
+  tiersPresent.forEach(t => {
+    TPL_RES[t].forEach(r => {
+      if(!roleSet2.has(r.role)) roleSet2.set(r.role,{role:r.role,reg:r.reg,tpl:{},perWave:0});
+      roleSet2.get(r.role).tpl[t] = r.hrs;
+    });
+  });
+  ROL_RES.forEach(r => {
+    if(!roleSet2.has(r.role)) roleSet2.set(r.role,{role:r.role,reg:r.reg,tpl:{},perWave:0});
+    roleSet2.get(r.role).perWave = r.hrs;
+  });
+
+  let alt2=false;
+  const totals2={};tiersPresent.forEach(t=>totals2[t]=0); let rolTot2=0;
+  roleSet2.forEach(r=>{
+    ws2.getRow(rn2).height=17;
+    const lSt=alt2?P.dLA:P.dL; const nSt=alt2?P.dNA:P.dN;
+    sc(ws2,rn2,1,r.role,lSt); sc(ws2,rn2,2,r.reg,lSt);
+    tiersPresent.forEach((t,ci)=>{
+      sc(ws2,rn2,3+ci,r.tpl[t]||0,nSt);
+      totals2[t]+=(r.tpl[t]||0);
+    });
+    if(hasRollout2){
+      sc(ws2,rn2,3+tiersPresent.length,r.perWave||0,nSt);
+      sc(ws2,rn2,4+tiersPresent.length,(r.perWave||0)*h.waves.length,nSt);
+      rolTot2+=(r.perWave||0)*h.waves.length;
+    }
+    alt2=!alt2; rn2++;
+  });
+
+  // Total row
+  ws2.getRow(rn2).height=18;
+  sc(ws2,rn2,1,'TOTAL',P.totL); sc(ws2,rn2,2,'',P.totL);
+  tiersPresent.forEach((t,ci)=>{ sc(ws2,rn2,3+ci,totals2[t],P.totN); });
+  if(hasRollout2){
+    sc(ws2,rn2,3+tiersPresent.length,ROL_RES.reduce((s,r)=>s+r.hrs,0),P.totN);
+    sc(ws2,rn2,4+tiersPresent.length,rolTot2,P.totN);
+  }
+  rn2++;
+
+  ws2.getRow(rn2).height=10; fr(ws2,rn2,1,ncols,P.blank); rn2++;
+  ws2.getRow(rn2).height=32;
+  sc(ws2,rn2,1,'For internal use by Kinaxis Professional Services. Not for external distribution. Template hours are for the pilot template build per tier. Rollout hours apply to each subsequent wave.',{font:font(C.g400,false,9),fill:fill(C.offWhite),alignment:align('left','middle',true)});
+  fr(ws2,rn2,2,ncols,{fill:fill(C.offWhite)}); ws2.mergeCells(rn2,1,rn2,ncols);
+
+  // ── SESSION SHEET (hidden, for import) ────────────────────
+  const wsSessionB = wb.addWorksheet('_session');
+  wsSessionB.state = 'veryHidden';
+  wsSessionB.getCell('A1').value = serializeState();
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='ES_Estimate_'+(pName||'Project').replace(/[^a-zA-Z0-9]/g,'_')+'_'+(S.proj.date||new Date().toISOString().slice(0,10))+'.xlsx';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },200);
+}
+
+// ═══════════════════════════════════════
+// SESSION SAVE / LOAD
+// ═══════════════════════════════════════
+const SESSION_NS   = 'es_sessions';
+const SESSION_MAX  = 4 * 1024 * 1024; // 4MB
+let   _loadedSessionKey = null; // key of currently loaded session
+let   _loadedSessionSnapshot = null; // JSON snapshot at load time
+
+function serializeState(){
+  const s = {...S};
+  // Serialize per-archetype excludedRoles as arrays
+  s.archetypes = (S.archetypes||[]).map(a=>({
+    ...a,
+    excludedRoles: [...(a.excludedRoles||new Set())],
+    caps: a.caps ? [...a.caps] : [],
+  }));
+  // Remove legacy global excludedRoles if present
+  delete s.excludedRoles;
+  return JSON.stringify(s);
+}
+
+function deserializeState(json){
+  const s = JSON.parse(json);
+  // Restore per-archetype excludedRoles as Sets
+  s.archetypes = (s.archetypes||[]).map(a=>({
+    ...a,
+    excludedRoles: new Set(a.excludedRoles||[]),
+    caps: new Set(a.caps||[]),
+  }));
+  // Handle legacy sessions that had global excludedRoles
+  if(!s.excludedRoles) s.excludedRoles = new Set();
+  else s.excludedRoles = new Set(s.excludedRoles||[]);
+  return s;
+}
+
+function sessionLabel(){
+  const name = (S.proj.name||'Untitled').trim();
+  const by   = (S.proj.by||'').trim();
+  const date = S.proj.date || new Date().toISOString().slice(0,10);
+  return [name, by, date].filter(Boolean).join(' · ');
+}
+
+function sessionMeta(){
+  // Compute total hours directly from state so it's accurate in all modes
+  let hrs = 0;
+  if(S.flow==='BUD'){
+    // Budgetary: use _totalHrs if available, otherwise skip
+    hrs = window._totalHrs || 0;
+  } else {
+    // GPT/ROM: sum across archetypes
+    if(S.archetypes && S.archetypes.length){
+      S.archetypes.forEach(a=>{
+        const tc = TC[a.tier]; if(!tc) return;
+        let aw=0; (a.adders||[]).forEach(x=>aw+=(AW[x]||0));
+        const sidebarExcl = a.excludedRoles||new Set();
+        const tH = TPL_RES[a.tier] ? TPL_RES[a.tier].filter(r=>!sidebarExcl.has(r.role)).reduce((s,r)=>s+r.hrs,0) : 0;
+        const rH = ROL_RES ? ROL_RES.filter(r=>!sidebarExcl.has(r.role)).reduce((s,r)=>s+r.hrs,0) : 0;
+        const waves = calcArchWaves(a);
+        hrs += tH + rH*waves;
+      });
+    }
+  }
+  const sites = S.flow==='BUD' ? BUD.sites : (S.entries ? S.entries.reduce((s,e)=>s+(e.sites||1),0) : 0);
+  const flow  = S.flow||'';
+  return `${hrs>0?hrs.toLocaleString()+' hrs':'—'} · ${sites} site${sites!==1?'s':''} · ${flow} · ${S.proj.date||''}`;
+}
+
+function getSessions(){
+  try{ return JSON.parse(localStorage.getItem(SESSION_NS)||'[]'); }
+  catch{ return []; }
+}
+
+function putSessions(sessions){
+  while(sessions.length > 8) sessions.pop();
+  try{ localStorage.setItem(SESSION_NS, JSON.stringify(sessions)); } catch{}
+}
+
+let _suppressSave = false;
+
+function saveSession(isFullSave){
+  if(_suppressSave) return;
+  const label = sessionLabel();
+  const snap  = serializeState();
+  const meta  = sessionMeta();
+  const sessions = getSessions();
+
+  // Check if loaded session changed
+  let targetKey = _loadedSessionKey;
+  const changed = _loadedSessionSnapshot && _loadedSessionSnapshot !== snap;
+
+  if(targetKey && !changed){
+    // Overwrite existing
+    const idx = sessions.findIndex(s=>s.key===targetKey);
+    if(idx>-1){ sessions[idx].snap=snap; sessions[idx].meta=meta; sessions[idx].updatedAt=Date.now(); putSessions(sessions); renderSessionPanel(); return; }
+  }
+
+  if(targetKey && changed && isFullSave){
+    // Create new version
+    const base = label.replace(/ v\d+$/, '');
+    const existing = sessions.filter(s=>s.label.startsWith(base));
+    const version  = existing.length + 1;
+    const newLabel = version > 1 ? `${base} v${version}` : base;
+    const key = 'sess_' + Date.now();
+    sessions.unshift({key, label:newLabel, snap, meta, updatedAt:Date.now()});
+    _loadedSessionKey = key;
+    _loadedSessionSnapshot = snap;
+  } else if(!targetKey){
+    // Brand new session
+    const key = 'sess_' + Date.now();
+    sessions.unshift({key, label, snap, meta, updatedAt:Date.now()});
+    _loadedSessionKey = key;
+    _loadedSessionSnapshot = snap;
+  }
+
+  // Trim to 4MB
+  let encoded = JSON.stringify(sessions);
+  while(encoded.length > SESSION_MAX && sessions.length > 1){
+    sessions.pop();
+    encoded = JSON.stringify(sessions);
+  }
+  putSessions(sessions);
+  renderSessionPanel();
+}
+
+function loadSession(key){
+  const sessions = getSessions();
+  const sess = sessions.find(s=>s.key===key);
+  if(!sess) return;
+  const restored = deserializeState(sess.snap);
+  Object.assign(S, restored);
+  _loadedSessionKey = key;
+  _loadedSessionSnapshot = sess.snap;
+  // Restore Step 1 UI
+  document.getElementById('projName').value  = S.proj.name||'';
+  document.getElementById('prepBy').value    = S.proj.by||'';
+  document.getElementById('projDate').value  = S.proj.date||'';
+  document.getElementById('oppStage').value  = S.proj.stage||'BUD';
+  setFlowFromStage(S.proj.stage||'BUD');
+  document.getElementById('modeSelect').value = S.mode||'site';
+  setModeFromSelect(S.mode||'site');
+  renderEntryList();
+  renderSessionPanel();
+  // Re-render all intermediate steps so back navigation works
+  if(S.flow==='GPT' && S.entries.length){
+    S.curCap=0; renderCapScoring();
+  }
+  if(S.entries.length){
+    S.curOC=0; renderOCScoring();
+  }
+  if(S.archetypes && S.archetypes.length){
+    renderReview();
+  }
+  // Jump to results if plan exists — suppress save during this auto-render
+  _suppressSave = true;
+  if(S.archetypes && S.archetypes.length && S.flow!=='BUD'){
+    genResults();
+  } else if(S.flow==='BUD'){
+    genBudgetaryEstimate();
+  }
+  // Update snapshot after render so next user change correctly diffs
+  _loadedSessionSnapshot = serializeState();
+  _suppressSave = false;
+}
+
+function deleteSession(key, e){
+  e.stopPropagation();
+  const sessions = getSessions().filter(s=>s.key!==key);
+  putSessions(sessions);
+  renderSessionPanel();
+}
+
+function renderSessionPanel(){
+  const sessions = getSessions();
+  const resumeWrap = document.getElementById('sessionResumeWrap');
+  const listWrap   = document.getElementById('sessionListWrap');
+  if(!resumeWrap||!listWrap) return;
+
+  resumeWrap.innerHTML = ''; // no resume shortcut
+
+  // Full list
+  if(sessions.length){
+    const rows = sessions.map(s=>`
+      <div class="session-row" onclick="loadSession('${s.key}')">
+        <div class="session-row-info">
+          <div class="session-row-name">${s.label}</div>
+          <div class="session-row-meta">${s.meta}</div>
+        </div>
+        <button class="session-row-del" onclick="deleteSession('${s.key}',event)" title="Remove">×</button>
+      </div>`).join('');
+    listWrap.innerHTML = `<div class="session-list">${rows}</div>`;
+  } else {
+    listWrap.innerHTML = `<div class="session-empty">No saved estimates yet. Generate a plan to save your first estimate.</div>`;
+  }
+}
+
+// Drop zone
+document.addEventListener('DOMContentLoaded',()=>{
+  const dz = document.getElementById('dropZone');
+  if(!dz) return;
+  dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e=>{
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if(file&&file.name.endsWith('.xlsx')) importFromExcel({files:[file]});
+  });
+});
+
+async function importFromExcel(input){
+  const file = input.files[0];
+  if(!file) return;
+  try{
+    const buf = await file.arrayBuffer();
+    const wb  = new ExcelJS.Workbook();
+    await wb.xlsx.load(buf);
+    const ws  = wb.getWorksheet('_session');
+    if(!ws){ alert('No session data found in this file. Make sure it was exported from this tool.'); return; }
+    const json = ws.getCell('A1').value;
+    if(!json) return;
+    const restored = deserializeState(json);
+    Object.assign(S, restored);
+    const key = 'sess_' + Date.now();
+    const snap = serializeState();
+    const meta = sessionMeta();
+    const sessions = getSessions();
+    sessions.unshift({key, label:sessionLabel(), snap, meta, updatedAt:Date.now()});
+    putSessions(sessions);
+    _loadedSessionKey = key;
+    _loadedSessionSnapshot = snap;
+    // Restore UI
+    document.getElementById('projName').value  = S.proj.name||'';
+    document.getElementById('prepBy').value    = S.proj.by||'';
+    document.getElementById('projDate').value  = S.proj.date||'';
+    document.getElementById('oppStage').value  = S.proj.stage||'BUD';
+    setFlowFromStage(S.proj.stage||'BUD');
+    document.getElementById('modeSelect').value = S.mode||'site';
+    setModeFromSelect(S.mode||'site');
+    renderEntryList();
+    renderSessionPanel();
+    alert('Session restored successfully.');
+  } catch(err){ alert('Could not read file: '+err.message); }
+}
+
+</script>
+
+<!-- ── HELP BUTTON & MODAL ──────────────────────────────────── -->
+<div id="scopeToast" style="display:flex;align-items:center;gap:14px;">⚠️ Some sites haven't been scored yet — review before generating.<button onclick="cancelToast()" style="background:transparent;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">Cancel</button><button onclick="dismissToast()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">OK →</button></div>
+
+<button onclick="document.getElementById('helpModal').style.display='flex'"
+  style="position:fixed;bottom:80px;right:28px;width:44px;height:44px;border-radius:50%;background:var(--kdeep);color:#fff;border:none;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:500;display:flex;align-items:center;justify-content:center;font-family:'Lato',sans-serif;transition:background .15s;"
+  onmouseover="this.style.background='var(--kteal)'" onmouseout="this.style.background='var(--kdeep)'"
+  title="Help">?</button>
+
+<div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border-radius:12px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.25);font-family:'Lato',sans-serif;">
+
+    <!-- Header -->
+    <div style="background:var(--kdeep);border-radius:12px 12px 0 0;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px;">Kinaxis Professional Services</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;">ES Scoping Tool — User Guide</div>
+      </div>
+      <button onclick="document.getElementById('helpModal').style.display='none'"
+        style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:28px;font-size:13px;line-height:1.7;color:var(--g700);">
+
+      <!-- Estimation Modes -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--kteal);margin-bottom:10px;">Estimation Modes</div>
+        <div style="display:grid;gap:10px;">
+          <div style="background:var(--bg);border-radius:8px;padding:12px 16px;border-left:3px solid var(--amber);">
+            <div style="font-weight:700;color:var(--g900);margin-bottom:2px;">Budgetary Estimate</div>
+            <div style="color:var(--g500);font-size:12px;">Pre-discovery. Enter total site count and an approximate tier mix. The tool calculates a blended hour range with an adjustable ±% variance band. Use when you have no site-level detail yet.</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:12px 16px;border-left:3px solid var(--blue);">
+            <div style="font-weight:700;color:var(--g900);margin-bottom:2px;">ROM</div>
+            <div style="color:var(--g500);font-size:12px;">Answer a set of operational context questions per site or archetype. The tool determines the tier automatically from your responses. Good for early sales conversations with limited discovery.</div>
+          </div>
+          <div style="background:var(--bg);border-radius:8px;padding:12px 16px;border-left:3px solid var(--green);">
+            <div style="font-weight:700;color:var(--g900);margin-bottom:2px;">GPT</div>
+            <div style="color:var(--g500);font-size:12px;">Score each ES capability (Not Needed / Possible / Required) per site. Tier is derived from the capabilities scored as Required. Use when you have discovery data and need a defensible estimate.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiers -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--kteal);margin-bottom:10px;">Complexity Tiers</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+          <div style="background:var(--green-lt);border-radius:8px;padding:10px;border:1px solid #41906244;">
+            <div style="font-weight:900;color:var(--green);font-size:13px;">Foundational</div>
+            <div style="font-size:11px;color:var(--g500);margin-top:2px;">27 wks · 3 sprints<br>Recommended max 4 sites/wave</div>
+          </div>
+          <div style="background:var(--blue-lt);border-radius:8px;padding:10px;border:1px solid #248f8e44;">
+            <div style="font-weight:900;color:var(--blue);font-size:13px;">Intermediate</div>
+            <div style="font-size:11px;color:var(--g500);margin-top:2px;">31 wks · 4 sprints<br>Recommended max 3 sites/wave</div>
+          </div>
+          <div style="background:var(--amber-lt);border-radius:8px;padding:10px;border:1px solid #c47a0044;">
+            <div style="font-weight:900;color:var(--amber);font-size:13px;">Advanced</div>
+            <div style="font-size:11px;color:var(--g500);margin-top:2px;">35 wks · 5 sprints<br>Recommended max 2 sites/wave</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Archetypes & Clustering -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--kteal);margin-bottom:10px;">Archetypes & Clustering (GPT, By Site)</div>
+        <div style="background:var(--bg);border-radius:8px;padding:12px 16px;margin-bottom:10px;border-left:3px solid var(--kteal);">
+          <div style="font-weight:700;color:var(--g900);margin-bottom:2px;">What is an Archetype?</div>
+          <div style="color:var(--g500);font-size:12px;">An archetype is a grouping of sites that share the same capability profile and can be configured from a single template build. Each archetype requires one template build effort — additional sites in the same archetype are delivered as rollout waves.</div>
+        </div>
+        <div style="color:var(--g500);font-size:12px;">
+          Sites are automatically grouped into archetypes based on their scored capabilities. Sites whose capabilities are fully covered by an existing archetype (and have ≤ 4 Advanced capabilities) roll into that archetype's waves instead of getting their own template.
+        </div>
+      </div>
+
+      <!-- Rollout Waves -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--kteal);margin-bottom:10px;">Rollout Waves</div>
+        <div style="color:var(--g500);font-size:12px;">
+          Each rollout wave is 20 weeks. The Connect phase of a rollout wave begins at the start of the prior engagement's Close phase (4-week overlap). Wave capacity limits apply across the whole engagement — not per archetype. Ideally no rollout wave should exceed 4 sites total across all archetypes.
+        </div>
+      </div>
+
+      <!-- Contingency & Role Exclusion -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--kteal);margin-bottom:10px;">Contingency & Role Exclusion</div>
+        <div style="color:var(--g500);font-size:12px;">
+          Contingency is set per archetype — useful when risk profiles differ across sites or when quoting fixed fee. A 5% readiness contingency is suggested automatically when low data or scheduling maturity is detected.<br><br>
+          Roles can be excluded per archetype from the resource table in the Estimate Summary. Excluded roles are removed from hours and the Gantt for that archetype only.
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div style="background:var(--amber-lt);border-radius:8px;padding:12px 16px;border:1px solid #c47a0033;margin-top:20px;">
+        <div style="font-size:11px;color:var(--amber);font-weight:700;">For internal use by Kinaxis Professional Services only. Not for external distribution.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── TIER MATRIX MODAL ─────────────────────────────────────────────────── -->
+<div id="tierMatrixModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border-radius:12px;max-width:780px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.25);font-family:'Lato',sans-serif;">
+
+    <!-- Header -->
+    <div style="background:var(--kdeep);border-radius:12px 12px 0 0;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:4px;">Enterprise Scheduling</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;">Tier Capability Matrix</div>
+      </div>
+      <button onclick="document.getElementById('tierMatrixModal').style.display='none'"
+        style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:24px;font-size:12px;color:var(--g700);">
+      <p style="color:var(--g500);margin:0 0 16px 0;font-size:12px;">Use this matrix to identify which tier best describes each site. A site's tier is determined by its highest-complexity requirement.</p>
+
+      <!-- Tier summary cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div style="background:var(--green-lt);border:1.5px solid var(--green);border-radius:8px;padding:12px;">
+          <div style="font-weight:900;color:var(--green);font-size:13px;margin-bottom:4px;">Foundational</div>
+          <div style="font-size:11px;color:var(--g500);">Standard scheduling with basic routing and capacity. Single operation, no parallel processing, no managed constraints.</div>
+        </div>
+        <div style="background:var(--blue-lt);border:1.5px solid var(--blue);border-radius:8px;padding:12px;">
+          <div style="font-weight:900;color:var(--blue);font-size:13px;margin-bottom:4px;">Intermediate</div>
+          <div style="font-size:11px;color:var(--g500);">More complex routing and capacity. Multi-operation, parallel processing, changeovers, or multi-level BoMs present.</div>
+        </div>
+        <div style="background:var(--amber-lt);border:1.5px solid var(--amber);border-radius:8px;padding:12px;">
+          <div style="font-weight:900;color:var(--amber);font-size:13px;margin-bottom:4px;">Advanced</div>
+          <div style="font-size:11px;color:var(--g500);">High-complexity requirements. Managed constraints, cross-site dependencies, pegging, batching, or skilled labor.</div>
+        </div>
+      </div>
+
+      <!-- Matrix table -->
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:10px 12px;background:var(--kdeep);color:#fff;font-size:11px;letter-spacing:.5px;">Capability</th>
+            <th style="text-align:center;padding:10px 16px;background:var(--green);color:#fff;font-size:11px;width:110px;">Foundational</th>
+            <th style="text-align:center;padding:10px 16px;background:var(--blue);color:#fff;font-size:11px;width:110px;">Intermediate</th>
+            <th style="text-align:center;padding:10px 16px;background:var(--amber);color:#fff;font-size:11px;width:110px;">Advanced</th>
+          </tr>
+        </thead>
+        <tbody>
+<tr><td colspan="4" style="padding:6px 12px;background:var(--kdeep);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Process Modeling</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Single-Op Routing</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--green);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Multi-Op Routing</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Operation Overlaps</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Min / max wait duration between operations</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Multi-level BoMs</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Concurrent operations</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Static changeovers</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--green);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Sequence-dependent changeovers (setup matrix)</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr><td colspan="4" style="padding:6px 12px;background:var(--kdeep);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Capacity & Constraints</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Alternate resources</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--green);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Alternate routings</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Tooling / Labor Constraints</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Skilled Labor Constraints</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Tanks / Storage Constraints</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Parallel Processing</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Inclusion / Exclusion Rules</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Co-Products / By-Products / Rework</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Cross-Site Dependencies</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr><td colspan="4" style="padding:6px 12px;background:var(--kdeep);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Sequencing</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Due date / order priority</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--green);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Minimize Changeovers (Setup Matrix)</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Product-specific campaigning rules</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr><td colspan="4" style="padding:6px 12px;background:var(--kdeep);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Material Pegging</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">FIFO raw material / subcomponent pegging</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--blue);">✓</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Rule-based pegging</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Hard allocations</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">BoM Substitution Rules / Pegging Tolerances</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr><td colspan="4" style="padding:6px 12px;background:var(--kdeep);color:rgba(255,255,255,.6);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Order Management</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Split orders</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:#fff;"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Order creation in ES</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+<tr style="background:var(--bg);"><td style="padding:5px 12px;border-bottom:1px solid var(--g100);color:var(--g700);">Resource-specific order sizing</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:400;color:var(--g300);">—</td><td style="padding:5px 16px;border-bottom:1px solid var(--g100);text-align:center;font-weight:900;font-size:16px;color:var(--amber);">✓</td></tr>
+</tbody>
+      </table>
+
+      <div style="margin-top:16px;padding:12px 16px;background:var(--bg);border-radius:8px;border-left:3px solid var(--kteal);">
+        <div style="font-size:11px;color:var(--g500);">A site's tier is determined by its highest-complexity capability. If unsure, use GPT mode to score capabilities individually — the tool will determine the tier automatically.</div>
+      </div>
+    </div>
+  </div>
+
 </body>
-</html>
